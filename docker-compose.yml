@@ -7,6 +7,17 @@ services:
             dockerfile: Dockerfile
         ports:
           - "5555:5555"
+    redis:
+        image: redis
+        restart: always
+        # CONFIG !!!
+        #env_file:
+        #    - db.env
+        volumes:
+            - .docker_volumes/redis:/data
+        ports:
+            - "6379:6379"
+
     #vnginx:
     #    image: nginx:latest
     #    ports:

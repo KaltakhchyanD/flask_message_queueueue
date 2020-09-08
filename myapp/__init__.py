@@ -1,4 +1,6 @@
-from flask import Flask, current_app, url_for, redirect
+from flask import Flask, current_app, url_for, redirect, render_template
+import redis
+
 
 from myapp.config import Config
 
@@ -13,7 +15,25 @@ def create_app():
 
     @app.route("/", methods = ["GET"])
     def index():
-        return "Hi"
+        return render_template("index.html")
+
+    @app.route("/rabbit")
+    def rabbit_view():
+        pass
+
+    @app.route("/redis")
+    def redis_view():
+        r = redis.Redis(host = 'redis', port = 6379)
+        r.mset({"Croatia": "Zagreb", "Bahamas": "Nassau"})
+        # True
+        result = r.get("Bahamas")
+        # b'Nassau'
+        return result
+
+    @app.route("/celery")
+    def celery_view():
+        pass
+
 
     return app
 

@@ -10,13 +10,12 @@ services:
     redis:
         image: redis
         restart: always
-        # CONFIG !!!
-        #env_file:
-        #    - db.env
         volumes:
             - .docker_volumes/redis:/data
+        #    - ./config/redis.conf:/redis.conf
         ports:
             - "6379:6379"
+        #command: [ "redis-server", "/redis.conf" ]
 
     #vnginx:
     #    image: nginx:latest

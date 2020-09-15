@@ -1,21 +1,56 @@
 version: '3'
 services:
+
+    worker:
+        image: worker_img
+        build:
+            context: .
+            dockerfile: Dockerfile_worker
+        depends_on:
+            - redis
+            - rabbit
+
+
     webapp:
         image: q_app_img
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile_flask
         ports:
           - "5555:5555"
+        depends_on:
+            - redis
+            - rabbit
+
+
     redis:
         image: redis
         restart: always
         volumes:
-            - .docker_volumes/redis:/data
+            - .docker_volumes/redis/data:/data
         #    - ./config/redis.conf:/redis.conf
         ports:
             - "6379:6379"
         #command: [ "redis-server", "/redis.conf" ]
+    rabbit:
+        image: rabbitmq
+        restart: always
+        volumes: 
+            #- .docker_volumes/rabbitmq/data:/var/lib/rabbitmq/:delegated
+            #- .docker_volumes/rabbitmq/logs:/var/log/rabbitmq/:delegated
+            #- .docker_volumes/rabbitmq/etc/:/etc/rabbitmq/:delegated
+
+            - .docker_volumes/rabbitmq/data:/var/lib/rabbitmq/
+            - .docker_volumes/rabbitmq/logs:/var/log/rabbitmq/
+            - .docker_volumes/rabbitmq/etc/:/etc/rabbitmq/
+
+        environment:
+            - RABBITMQ_DEFAULT_USER=rabbit
+            - RABBITMQ_DEFAULT_PASS=mq
+            #- RABBITMQ_DEFAULT_VHOST=my_vhost
+        ports:
+            - "5672:5672"
+            - "15672:15672"
 
     #vnginx:
     #    image: nginx:latest

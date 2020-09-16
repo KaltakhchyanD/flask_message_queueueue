@@ -5,9 +5,9 @@ services:
         image: worker_img
         build:
             context: .
-            dockerfile: Dockerfile_worker
+            dockerfile: Dockerfile_rabbit_worker
         depends_on:
-            - redis
+            #- redis
             - rabbit
 
 
@@ -36,10 +36,6 @@ services:
         image: rabbitmq
         restart: always
         volumes: 
-            #- .docker_volumes/rabbitmq/data:/var/lib/rabbitmq/:delegated
-            #- .docker_volumes/rabbitmq/logs:/var/log/rabbitmq/:delegated
-            #- .docker_volumes/rabbitmq/etc/:/etc/rabbitmq/:delegated
-
             - .docker_volumes/rabbitmq/data:/var/lib/rabbitmq/
             - .docker_volumes/rabbitmq/logs:/var/log/rabbitmq/
             - .docker_volumes/rabbitmq/etc/:/etc/rabbitmq/

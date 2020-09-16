@@ -20,7 +20,7 @@ channel.queue_declare(queue='hello', durable=True)
 def callback(ch, method, properties, body):
     print(" [x] Received %r" % body)
     with open('temp.txt', 'a') as file:
-        file.write(f"{datetime.datetime.now()}")
+        file.write(f"{datetime.datetime.now()} \n")
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 

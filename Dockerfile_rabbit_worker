@@ -14,13 +14,13 @@ RUN \
 
 RUN env/bin/pip install -r requirements.txt
 
-COPY worker.py ./
+COPY workers/rabbit_worker.py ./
 
-COPY boot_worker.sh ./
+COPY boot_rabbit_worker.sh ./
 
-RUN chmod +x boot_worker.sh
+RUN chmod +x boot_rabbit_worker.sh
 
 RUN chown -R app_user_test:app_user_test ./
 USER app_user_test
 
-ENTRYPOINT ["./boot_worker.sh"]
+ENTRYPOINT ["./boot_rabbit_worker.sh"]

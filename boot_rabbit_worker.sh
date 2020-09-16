@@ -1,4 +1,4 @@
 #!/bin/sh
 source env/bin/activate
 
-exec python3 worker.py
+exec python3 rabbit_worker.py

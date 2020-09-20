@@ -1,7 +1,7 @@
 FROM python:3.8-alpine
 
-RUN adduser -D app_user
-WORKDIR /home/app_user
+RUN adduser -D app_user_test
+WORKDIR /home/app_user_test
 COPY requirements.txt requirements.txt
 
 RUN python -m venv env
@@ -15,14 +15,13 @@ RUN \
 RUN env/bin/pip install -r requirements.txt
 
 COPY myapp myapp
-COPY workers/celery_worker.py workers/celery_worker.py
+COPY workers workers
 
-COPY webapp.py boot.sh ./
+COPY boot_celery_worker.sh ./
 
-RUN chmod +x boot.sh
+RUN chmod +x boot_celery_worker.sh
 
-RUN chown -R app_user:app_user ./
-USER app_user
+RUN chown -R app_user_test:app_user_test ./
+USER app_user_test
 
-EXPOSE 5555
-ENTRYPOINT ["./boot.sh"]
+ENTRYPOINT ["./boot_celery_worker.sh"]

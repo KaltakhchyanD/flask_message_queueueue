@@ -1,13 +1,23 @@
 version: '3'
 services:
 
-    worker:
-        image: worker_img
+    rabbit_worker:
+        image: rabbit_worker_img
         build:
             context: .
             dockerfile: Dockerfile_rabbit_worker
         depends_on:
             #- redis
+            - rabbit
+
+    celery_worker:
+        image: celery_worker_img
+        build:
+            context: .
+            dockerfile: Dockerfile_celery_worker
+        #command: "celery -A tasks worker --loglevel=info"
+        depends_on:
+            - redis
             - rabbit
 
 
@@ -33,7 +43,7 @@ services:
             - "6379:6379"
         #command: [ "redis-server", "/redis.conf" ]
     rabbit:
-        image: rabbitmq
+        image: rabbitmq:3-management
         restart: always
         volumes: 
             - .docker_volumes/rabbitmq/data:/var/lib/rabbitmq/

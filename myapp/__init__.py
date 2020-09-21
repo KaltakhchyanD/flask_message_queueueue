@@ -54,7 +54,12 @@ def create_app():
         # True
         result = r.get("Bahamas")
         # b'Nassau'
-        return result
+
+        r.publish('my-first-channel', '1 Cool message to publish!')
+        r.publish('my-first-channel', '2 Cool message to publish!')
+        r.publish('my-first-channel', 'And even 3 Cool message to publish!')
+
+        return f'Hey redis - {result}', 200
 
     @app.route("/celery")
     def celery_view():

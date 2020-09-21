@@ -15,11 +15,17 @@ services:
         build:
             context: .
             dockerfile: Dockerfile_celery_worker
-        #command: "celery -A tasks worker --loglevel=info"
         depends_on:
             - redis
             - rabbit
 
+    redis_pubsub_worker:
+        image: redis_pubsub_worker_img
+        build:
+            context: .
+            dockerfile: Dockerfile_redis_pubsub_worker
+        depends_on:
+            - redis
 
     webapp:
         image: q_app_img
@@ -36,19 +42,19 @@ services:
     redis:
         image: redis
         restart: always
-        volumes:
-            - .docker_volumes/redis/data:/data
-        #    - ./config/redis.conf:/redis.conf
+        #volumes:
+        #    - .docker_volumes/redis/data:/data
+        ##    - ./config/redis.conf:/redis.conf
         ports:
             - "6379:6379"
         #command: [ "redis-server", "/redis.conf" ]
     rabbit:
         image: rabbitmq:3-management
         restart: always
-        volumes: 
-            - .docker_volumes/rabbitmq/data:/var/lib/rabbitmq/
-            - .docker_volumes/rabbitmq/logs:/var/log/rabbitmq/
-            - .docker_volumes/rabbitmq/etc/:/etc/rabbitmq/
+        #volumes: 
+        #    - .docker_volumes/rabbitmq/data:/var/lib/rabbitmq/
+        #    - .docker_volumes/rabbitmq/logs:/var/log/rabbitmq/
+        #    - .docker_volumes/rabbitmq/etc/:/etc/rabbitmq/
 
         environment:
             - RABBITMQ_DEFAULT_USER=rabbit

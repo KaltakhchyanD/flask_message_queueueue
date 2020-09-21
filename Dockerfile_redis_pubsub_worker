@@ -1,0 +1,26 @@
+FROM python:3.8-alpine
+
+RUN adduser -D app_user_test
+WORKDIR /home/app_user_test
+COPY requirements.txt requirements.txt
+
+RUN python -m venv env
+RUN env/bin/pip install -U pip
+
+RUN \
+ apk add --no-cache gcc musl-dev libffi-dev  openssl-dev make && \
+ apk add --no-cache --virtual .build-deps gcc musl-dev
+
+
+RUN env/bin/pip install -r requirements.txt
+
+COPY workers/redis_pubsub_worker.py ./
+
+COPY boot_redis_pubsub_worker.sh ./
+
+RUN chmod +x boot_redis_pubsub_worker.sh
+
+RUN chown -R app_user_test:app_user_test ./
+USER app_user_test
+
+ENTRYPOINT ["./boot_redis_pubsub_worker.sh"]

@@ -6,7 +6,27 @@
     <title>INDEX!</title>
 </head>
 <body>
-    <h1>HELLO !1!1</h1>
+    <h1>HELLO</h1>
+
+    <h1>Click on the link to create job with one of a services</h1>
+
+    <a class="nav-link" href="{{url_for('redis_view')}}">
+        Redis
+    </a>
+    <br>
+    <br>
+
+    <a class="nav-link" href="{{url_for('rabbit_view')}}">
+        RabbitMQ
+    </a>
+    <br>
+    <br>
+
+    <a class="nav-link" href="{{url_for('celery_view')}}">
+        Celery
+    </a>
+
+
 </body>
 </html>
 

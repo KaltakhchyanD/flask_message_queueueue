@@ -15,7 +15,7 @@ RUN \
 RUN env/bin/pip install -r requirements.txt
 
 COPY myapp myapp
-COPY workers/celery_worker.py workers/celery_worker.py
+COPY workers/ workers/
 
 COPY webapp.py boot.sh ./
 

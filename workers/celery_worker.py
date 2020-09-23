@@ -8,8 +8,10 @@ from flask import current_app, _app_ctx_stack
 
 
 # app.autodiscover_tasks()
+from workers.celery_utils import make_celery
 
-from myapp.celery_utils import celery_app
+celery_app = make_celery("myapp")
+
 
 @celery_app.task
 def add(a, b):

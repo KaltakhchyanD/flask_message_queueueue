@@ -5,9 +5,9 @@ from flask import Flask, current_app, url_for, redirect, render_template, _app_c
 import redis
 import pika
 
-from myapp.celery_utils import celery_app, init_celery
 from myapp.config import Config
-from workers.celery_worker import write_task
+from workers.celery_utils import init_celery
+from workers.celery_worker import celery_app, write_task
 from workers import celery_worker, redis_pubsub_worker
 
 
@@ -49,8 +49,14 @@ def create_app():
 
         return "Hey", 200
 
+
     @app.route("/redis")
     def redis_view():
+        return render_template('redis_page.html')
+
+
+    @app.route("/redis_create")
+    def redis_create():
         r = redis.Redis(host="redis", port=6379)
         #r = redis.Redis(host="localhost", port=6379)
         r.mset({"Croatia": "Zagreb", "Bahamas": "Nassau"})

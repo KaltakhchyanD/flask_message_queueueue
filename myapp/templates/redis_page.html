@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<br>
+<br>
+
+<h2>Press button to start task</h2>
+<br>
+<br>
+<br>
+
+
+<button name="StartTask" type="submit" class="btn btn-danger">Start task with Redis PubSub!</button>
+
+<div id="temp_result"></div>
+<br>
+
+<button name="CheckResult" type="submit" class="btn btn-danger">Check result</button>
+<br>
+
+<div id="stop_clock"></div>
+<br>
+
+<div id="final_result"></div>
+
+{% endblock %}
+
+
+{% block scripts%}
+  <script type="module">
+      // Give the imported MVC components a namespace
+      import * as MVC from "/static/js/redis/redis.js";
+
+      // Create an intentional global variable referencing the import
+      window.mvc = MVC;
+  </script>
+{% endblock %}

@@ -5,10 +5,6 @@ import time
 
 import redis
 
-
-# def subscribe_to_result_once(r):
-
-
 class RedisUniquePubSub:
 
     pubsub = None
@@ -29,27 +25,22 @@ class RedisUniquePubSub:
 
 def run_worker():
 
-    # r = redis.Redis(host="redis", port=6379)
-    r = redis.Redis(host="localhost", port=6379)
+    r = redis.Redis(host="redis", port=6379)
+    # r = redis.Redis(host="localhost", port=6379)
 
     p = r.pubsub()
     p.subscribe("my-first-channel")
 
     for message in p.listen():
-        print(
-            f"Got message! Its content - {message['data']}"
-        )
+        print(f"Got message! Its content - {message['data']}")
 
-        # This is message that is always sent for some reason at the start of redis 
+        # This is message that is always sent for some reason at the start of redis
         if message["data"] == 1:
-            print('DUMB MESSAGE')
+            print("DUMB MESSAGE")
             continue
 
-        print('Valid message')
+        print("Valid message")
         message_str = message["data"].decode()
-        #message_str = (
-        #    message["data"].decode() if message["data"] != 1 else "some_string"
-        #)
 
         result_dict = {"finished": True, "message": message_str}
         result_json = json.dumps(result_dict)

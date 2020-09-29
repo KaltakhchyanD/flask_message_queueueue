@@ -11,8 +11,6 @@ from workers.celery_worker import celery_app, write_task
 from workers import celery_worker, redis_pubsub_worker
 
 
-
-
 def create_app():
     app = Flask(__name__)
 
@@ -49,15 +47,13 @@ def create_app():
 
         return "Hey", 200
 
-
     @app.route("/redis")
     def redis_view():
-        return render_template('redis_page.html')
-
+        return render_template("redis_page.html")
 
     @app.route("/redis_create")
     def redis_create():
-        #r = redis.Redis(host="redis", port=6379)
+        # r = redis.Redis(host="redis", port=6379)
         r = redis.Redis(host="localhost", port=6379)
         r.mset({"Croatia": "Zagreb", "Bahamas": "Nassau"})
         # True
@@ -67,37 +63,28 @@ def create_app():
         # Subscribe to result_channel b4 send task so rsult can be caught
         c = redis_pubsub_worker.RedisUniquePubSub(r)
         p = c.subscribe_to_result_once()
-        print(f'In send - {p}')
+        print(f"In send - {p}")
 
+        r.publish("my-first-channel", "1 Cool message to publish!")
+        # r.publish('my-first-channel', '2 Cool message to publish!')
+        # r.publish('my-first-channel', 'And even 3 Cool message to publish!')
 
+        return f"Task started!", 200
 
-        r.publish('my-first-channel', '1 Cool message to publish!')
-        #r.publish('my-first-channel', '2 Cool message to publish!')
-        #r.publish('my-first-channel', 'And even 3 Cool message to publish!')
-
-        return f'Task started!', 200
-
-    @app.route('/redis_result')
+    @app.route("/redis_result")
     def redis_check_result():
-        #r = redis.Redis(host="redis", port=6379)
-        r = redis.Redis(host="localhost", port=6379)
+        r = redis.Redis(host="redis", port=6379)
+        # r = redis.Redis(host="localhost", port=6379)
 
         c = redis_pubsub_worker.RedisUniquePubSub(r)
         p = c.subscribe_to_result_once()
-        print(f'In result - {p}')
-
 
         result_message = p.get_message()
         if result_message and result_message["data"] != 1:
-
-
-            print(f"{result_message['data']}")
-            #result_dict = json.loads(result_message['data']) if result_message['data']!=1 else {'message':'some_other'}
-            result_dict = json.loads(result_message['data'])
-            return {'status':'Finished', 'message' : result_dict['message']}, 200
+            result_dict = json.loads(result_message["data"])
+            return {"status": "Finished", "message": result_dict["message"]}, 200
         else:
-            return {'status':'Pending'}, 200
-
+            return {"status": "Pending"}, 200
 
     @app.route("/celery")
     def celery_view():

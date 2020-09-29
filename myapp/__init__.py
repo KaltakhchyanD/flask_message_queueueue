@@ -57,8 +57,8 @@ def create_app():
 
     @app.route("/redis_create")
     def redis_create():
-        r = redis.Redis(host="redis", port=6379)
-        #r = redis.Redis(host="localhost", port=6379)
+        #r = redis.Redis(host="redis", port=6379)
+        r = redis.Redis(host="localhost", port=6379)
         r.mset({"Croatia": "Zagreb", "Bahamas": "Nassau"})
         # True
         result = r.get("Bahamas")
@@ -72,14 +72,15 @@ def create_app():
 
 
         r.publish('my-first-channel', '1 Cool message to publish!')
-        r.publish('my-first-channel', '2 Cool message to publish!')
-        r.publish('my-first-channel', 'And even 3 Cool message to publish!')
+        #r.publish('my-first-channel', '2 Cool message to publish!')
+        #r.publish('my-first-channel', 'And even 3 Cool message to publish!')
 
-        return f'Hey redis - {result}', 200
+        return f'Task started!', 200
 
     @app.route('/redis_result')
     def redis_check_result():
-        r = redis.Redis(host="redis", port=6379)
+        #r = redis.Redis(host="redis", port=6379)
+        r = redis.Redis(host="localhost", port=6379)
 
         c = redis_pubsub_worker.RedisUniquePubSub(r)
         p = c.subscribe_to_result_once()
@@ -87,9 +88,12 @@ def create_app():
 
 
         result_message = p.get_message()
-        if result_message:
+        if result_message and result_message["data"] != 1:
+
+
             print(f"{result_message['data']}")
-            result_dict = json.loads(result_message['data']) if result_message['data']!=1 else {'message':'some_other'}
+            #result_dict = json.loads(result_message['data']) if result_message['data']!=1 else {'message':'some_other'}
+            result_dict = json.loads(result_message['data'])
             return {'status':'Finished', 'message' : result_dict['message']}, 200
         else:
             return {'status':'Pending'}, 200

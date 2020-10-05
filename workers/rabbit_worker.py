@@ -1,6 +1,9 @@
-import time
 import datetime
+import os
+import time
+
 import pika
+
 
 def run_worker():
     # Sleep for 20 sec to ensure that rabbit server started
@@ -14,9 +17,13 @@ def run_worker():
     #connection = pika.BlockingConnection(
     #    pika.ConnectionParameters(host='rabbit', credentials = credentials))
     
-    credentials = pika.PlainCredentials('guest', 'guest')
+    user = os.getenv('RABBIT_USER')
+    password = os.getenv('RABBIT_PASSWORD')
+    host = os.getenv('RABBIT_HOST')
+
+    credentials = pika.PlainCredentials(user, password)
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host='localhost', credentials = credentials))
+        pika.ConnectionParameters(host=host, credentials = credentials))
 
 
 

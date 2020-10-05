@@ -1,9 +1,14 @@
+import os
+
 from celery import Celery
 
 
 def make_celery(app_name=__name__):
-    celery_app = Celery(app_name, broker="pyamqp://rabbit:mq@rabbit:5672")
-    # celery_app = Celery(app_name, broker="pyamqp://guest:guest@localhost:5672")
+    user = os.getenv('RABBIT_USER')
+    password = os.getenv('RABBIT_PASSWORD')
+    host = os.getenv('RABBIT_HOST')
+
+    celery_app = Celery(app_name, broker=f"pyamqp://{user}:{password}@{host}:5672")
     # celery.conf.update(app.config)
     return celery_app
 

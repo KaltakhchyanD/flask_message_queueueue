@@ -26,10 +26,13 @@ def create_app():
 
     @app.route("/rabbit")
     def rabbit_view():
-        credentials = pika.PlainCredentials("rabbit", "mq")
+        host = app.config["RABBIT_HOST"]
+        user = app.config["RABBIT_USER"]
+        password = app.config["RABBIT_PASSWORD"]
 
+        credentials = pika.PlainCredentials(user, password)
         connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host="rabbit", credentials=credentials)
+            pika.ConnectionParameters(host=host, credentials=credentials)
         )
 
         channel = connection.channel()
@@ -53,8 +56,9 @@ def create_app():
 
     @app.route("/redis_create")
     def redis_create():
-        # r = redis.Redis(host="redis", port=6379)
-        r = redis.Redis(host="localhost", port=6379)
+        host = app.config["REDIS_HOST"]
+        r = redis.Redis(host=host, port=6379)
+
         r.mset({"Croatia": "Zagreb", "Bahamas": "Nassau"})
         # True
         result = r.get("Bahamas")
@@ -73,8 +77,9 @@ def create_app():
 
     @app.route("/redis_result")
     def redis_check_result():
-        r = redis.Redis(host="redis", port=6379)
-        # r = redis.Redis(host="localhost", port=6379)
+
+        host = app.config["REDIS_HOST"]
+        r = redis.Redis(host=host, port=6379)
 
         c = redis_pubsub_worker.RedisUniquePubSub(r)
         p = c.subscribe_to_result_once()

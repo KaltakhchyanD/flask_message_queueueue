@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 import random
 import time
 
@@ -25,8 +26,8 @@ class RedisUniquePubSub:
 
 def run_worker():
 
-    r = redis.Redis(host="redis", port=6379)
-    # r = redis.Redis(host="localhost", port=6379)
+    host = os.getenv('REDIS_HOST')
+    r = redis.Redis(host=host, port=6379)
 
     p = r.pubsub()
     p.subscribe("my-first-channel")

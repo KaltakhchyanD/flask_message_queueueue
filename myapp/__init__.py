@@ -6,6 +6,7 @@ import redis
 import pika
 
 from myapp.config import Config
+from myapp.utils import RabbitClient
 from workers.celery_utils import init_celery
 from workers.celery_worker import celery_app, write_task
 from workers import celery_worker, redis_pubsub_worker
@@ -19,6 +20,11 @@ def create_app():
 
     init_celery(celery_app, app)
 
+    rabbit_host = app.config["RABBIT_HOST"]
+    rabbit_user = app.config["RABBIT_USER"]
+    rabbit_password = app.config["RABBIT_PASSWORD"]
+    rabbit_client = RabbitClient(rabbit_host, rabbit_user, rabbit_password)
+
     @app.route("/", methods=["GET"])
     def index():
         print("INDEX")
@@ -26,29 +32,21 @@ def create_app():
 
     @app.route("/rabbit")
     def rabbit_view():
-        host = app.config["RABBIT_HOST"]
-        user = app.config["RABBIT_USER"]
-        password = app.config["RABBIT_PASSWORD"]
+        return render_template("rabbit_page.html")
 
-        credentials = pika.PlainCredentials(user, password)
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host=host, credentials=credentials)
-        )
+    @app.route("/rabbit_create")
+    def rabbit_create():
+        rabbit_client.send_message("Hello World!")
+        return f"Task started!", 200
 
-        channel = connection.channel()
-
-        channel.queue_declare(queue="hello", durable=True)
-
-        channel.basic_publish(
-            exchange="",
-            routing_key="hello",
-            body="Hello World!",
-            properties=pika.BasicProperties(delivery_mode=2),  # make message persistent
-        )
-        print(" [x] Sent 'Hello World!'")
-        connection.close()
-
-        return "Hey", 200
+    @app.route("/rabbit_result")
+    def rabbit_check_result():
+        response = rabbit_client.check_response()
+        print(f"Type of response - {type(response)}")
+        if response:
+            return {"status": "Finished", "message": response.decode()}, 200
+        else:
+            return {"status": "Pending"}, 200
 
     @app.route("/redis")
     def redis_view():

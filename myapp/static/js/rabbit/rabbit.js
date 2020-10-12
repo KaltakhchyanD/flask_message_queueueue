@@ -38,14 +38,17 @@ let seconds = 0;
 let some_id = 0;
 
 class View {
-    //seconds = 0;
-    //some_id = 0;
 
     constructor(){
-        //this.seconds = 0;
-        //console.log('At constr -' + this.seconds);
-        //this.some_id = 0;
         console.log('Global in consr - '+seconds);
+    }
+    
+    show_status_pending() {
+        let current_path = window.location.href.split("?")[0];
+        let data_html ="<br>"
+        data_html+= "<h3>Status is pending, wait a bit</h3>" 
+        data_html+="<br>"
+        $("#final_result").html(data_html);
     }
 
     show_task_been_created(){
@@ -57,7 +60,6 @@ class View {
 
 
     show_final_result(result_message){
-
         let current_path = window.location.href.split("?")[0];
         let data_html ="<br>"
         data_html+= "<h3>Here is final result</h3>" 
@@ -67,8 +69,6 @@ class View {
     }
 
     increment_seconds(){
-        //this.seconds+=1;
-        //console.log(this.seconds);
         seconds+=1;
         console.log(seconds);
     }
@@ -121,20 +121,15 @@ class Controller{
     async check_result_button_action(evt, button){
         evt.preventDefault();
         try {   
+            this.view.show_status_pending();
             let response = await this.model.check_result();
-            console.log(response)
+            console.log(response);
 
-            if (response['status']==='Pending'){
-                this.view.show_final_result('Pending');
-            } else {
-                this.view.show_final_result(response['message']);
-                console.log(seconds);
-                this.view.stop_timer();
-                this.view.view_timer();
-                this.view.clear_timer();
-
-            }
-
+            this.view.show_final_result(response['message']);
+            console.log(seconds);
+            this.view.stop_timer();
+            this.view.view_timer();
+            this.view.clear_timer();
         } catch(err) {
             console.log(err)
         }

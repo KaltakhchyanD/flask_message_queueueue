@@ -48,15 +48,13 @@ class View {
         console.log('Global in consr - '+seconds);
     }
 
-    show_temp_result(result_message){
-
+    show_task_been_created(){
         let current_path = window.location.href.split("?")[0];
         let data_html ="<br>"
-        data_html+= "<h3>Here is temp result</h3>" 
-        data_html+=result_message
-        data_html+="<br>"
-        $("#temp_result").html(data_html);
+        data_html+= "<h3>Task has been successfully created!</h3>" 
+        $("#task_created").html(data_html);
     }
+
 
     show_final_result(result_message){
 
@@ -113,6 +111,7 @@ class Controller{
             console.log(response)
             console.log('Seconds at start - ');
             console.log(seconds);
+            this.view.show_task_been_created();
             this.view.start_timer();
         } catch(err) {
             console.log(err)

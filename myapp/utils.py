@@ -40,8 +40,19 @@ class RabbitClient:
         if self.corr_id == properties.correlation_id:
             self.response = body
 
-    def check_response(self):
+    def check_response_once(self):
+        # Non blocking check for result once
+        self.connection.process_data_events()
         return self.response
+
+    def check_response_loop(self):
+        # Blocking check for result until its ready
+        while self.response is None:
+            print("Still nothing")
+            self.connection.process_data_events()
+            time.sleep(1)
+        return self.response
+
 
     def send_message(self, message):
         # connection = pika.BlockingConnection(
@@ -62,9 +73,5 @@ class RabbitClient:
             ),
         )
         print(" [x] Sent 'Hello World!'")
-        while self.response is None:
-            print("Still nothing")
-            self.connection.process_data_events()
-            time.sleep(1)
 
         # connection.close()

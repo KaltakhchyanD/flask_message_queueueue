@@ -41,7 +41,7 @@ def create_app():
 
     @app.route("/rabbit_result")
     def rabbit_check_result():
-        response = rabbit_client.check_response()
+        response = rabbit_client.check_response_once()
         print(f"Type of response - {type(response)}")
         if response:
             return {"status": "Finished", "message": response.decode()}, 200

@@ -45,7 +45,7 @@ class RabbitClient:
         self.connection.process_data_events()
         return self.response
 
-    def check_response_loop(self):
+    def check_response_long(self):
         # Blocking check for result until its ready
         while self.response is None:
             print("Still nothing")

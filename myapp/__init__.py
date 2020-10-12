@@ -48,6 +48,15 @@ def create_app():
         else:
             return {"status": "Pending"}, 200
 
+    @app.route("/rabbit_result_blocking")
+    def rabbit_check_result_blocking():
+        response = rabbit_client.check_response_long()
+        print(f"Type of response - {type(response)}")
+        if response:
+            return {"status": "Finished", "message": response.decode()}, 200
+        else:
+            return {"status": "Pending"}, 200
+
     @app.route("/redis")
     def redis_view():
         return render_template("redis_page.html")

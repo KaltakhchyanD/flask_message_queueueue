@@ -26,7 +26,7 @@ class Model {
             }
         };
         // Call the REST endpoint and wait for data
-        let endpoint_url = "/rabbit_result";
+        let endpoint_url = "/rabbit_result_blocking";
         let response = await fetch(endpoint_url, options);
         let data = await response.json();
         return data;

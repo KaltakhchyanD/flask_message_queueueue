@@ -58,6 +58,9 @@ class View {
         $("#task_created").html(data_html);
     }
 
+    clear_task_been_created(){
+        $("#task_created").html("");
+    }
 
     show_final_result(result_message){
         let current_path = window.location.href.split("?")[0];
@@ -66,6 +69,12 @@ class View {
         data_html+=result_message
         data_html+="<br>"
         $("#final_result").html(data_html);
+    }
+
+    clear_final_result(){
+        let current_path = window.location.href.split("?")[0];
+        $("#final_result").html("");
+
     }
 
     increment_seconds(){
@@ -87,8 +96,12 @@ class View {
 
     view_timer(){
         $("#stop_clock").text('Task took roughly about '+seconds+' seconds');
-
     }
+
+    clear_timer_result(){
+        $("#stop_clock").text('');
+    }
+
 
 }
 
@@ -113,6 +126,8 @@ class Controller{
             console.log(seconds);
             this.view.show_task_been_created();
             this.view.start_timer();
+            this.view.clear_final_result();
+            this.view.clear_timer_result();
         } catch(err) {
             console.log(err)
         }
@@ -130,6 +145,7 @@ class Controller{
             this.view.stop_timer();
             this.view.view_timer();
             this.view.clear_timer();
+            this.view.clear_task_been_created();
         } catch(err) {
             console.log(err)
         }

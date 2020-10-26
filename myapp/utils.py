@@ -16,8 +16,12 @@ class RabbitClient:
             )
         )
 
+        self.rabbit_queue_list = []
+
         self.rabbit_channel = self.connection.channel()
-        self.rabbit_channel.queue_declare(queue="hello", durable=True)
+        queue_name = "hello"
+        self.rabbit_queue_list.append(queue_name)
+        self.rabbit_channel.queue_declare(queue=queue_name, durable=True)
 
         #
         result = self.rabbit_channel.queue_declare(queue="", exclusive=True)
@@ -62,16 +66,27 @@ class RabbitClient:
         self.response = None
         self.corr_id = str(uuid.uuid4())
 
-        self.rabbit_channel.basic_publish(
-            exchange="",
-            routing_key="hello",
-            body=message,
-            properties=pika.BasicProperties(
-                delivery_mode=2,  # make message persistent
-                reply_to=self.callback_queue,
-                correlation_id=self.corr_id,
-            ),
-        )
+
+        def publish_message():
+            self.rabbit_channel.basic_publish(
+                exchange="",
+                routing_key="hello",
+                body=message,
+                properties=pika.BasicProperties(
+                    delivery_mode=2,  # make message persistent
+                    reply_to=self.callback_queue,
+                    correlation_id=self.corr_id,
+                ),
+            )
+
+        try:
+            publish_message()
+        except pika.exceptions.ChannelWrongStateError as e:
+            print(f'There was a ChannelWrongStateError exception, reopening it')
+            self.rabbit_channel = self.connection.channel()
+            publish_message()
+
+
         print(" [x] Sent 'Hello World!'")
 
         # connection.close()

@@ -24,6 +24,7 @@ def create_app():
     rabbit_user = app.config["RABBIT_USER"]
     rabbit_password = app.config["RABBIT_PASSWORD"]
     rabbit_client = RabbitClient(rabbit_host, rabbit_user, rabbit_password)
+    print(f"Rabbit queues names: {rabbit_client.rabbit_queue_list}")
 
     @app.route("/", methods=["GET"])
     def index():

@@ -37,12 +37,24 @@ class Model {
 let seconds = 0;
 let some_id = 0;
 
+let tasks_sent = 0;
+let responses_received = 0;
+
 class View {
 
     constructor(){
         console.log('Global in consr - '+seconds);
     }
     
+    show_number_tasks(){
+        $("#number_tasks_sent").text('Task been sent: '+tasks_sent);
+    }
+
+    show_number_responses(){
+        $("#number_responses_received").text('Responses been received: '+responses_received);
+    }
+
+
     show_status_pending() {
         let current_path = window.location.href.split("?")[0];
         let data_html ="<br>"
@@ -128,6 +140,8 @@ class Controller{
             this.view.start_timer();
             this.view.clear_final_result();
             this.view.clear_timer_result();
+            tasks_sent++;
+            this.view.show_number_tasks();
         } catch(err) {
             console.log(err)
         }
@@ -139,6 +153,9 @@ class Controller{
             this.view.show_status_pending();
             let response = await this.model.check_result();
             console.log(response);
+            responses_received++;
+            this.view.show_number_responses();
+
 
             this.view.show_final_result(response['message']);
             console.log(seconds);

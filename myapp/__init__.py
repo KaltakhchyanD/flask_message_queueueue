@@ -33,7 +33,7 @@ def create_app():
 
     @app.route("/rabbit")
     def rabbit_view():
-        return render_template("rabbit_page.html")
+        return render_template("rabbit_page.html", queues_names = rabbit_client.rabbit_queue_list)
 
     @app.route("/rabbit_create")
     def rabbit_create():

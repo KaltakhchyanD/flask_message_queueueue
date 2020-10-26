@@ -7,7 +7,13 @@
 
 <h2>Press button to start task</h2>
 <br>
-<br>
+<div id="queues_names">
+    {% for queue_name in queues_names %}
+        <h4>Queue: {{queue_name}}</h4>
+        <img src="/static/images/queue.png">
+
+    {% endfor %}
+</div>
 <br>
 
 

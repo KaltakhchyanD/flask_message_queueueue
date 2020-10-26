@@ -7,56 +7,67 @@ import pika
 
 
 def run_worker():
-    user = os.getenv("RABBIT_USER")
-    password = os.getenv("RABBIT_PASSWORD")
-    host = os.getenv("RABBIT_HOST")
+    worker = RabbitWorker()
 
-    # Sleep for 20 sec to ensure that rabbit server started
-    print(" [*] Sleeping for 120 seconds.")
-    time.sleep(120)
-    print(" [*] After sleep")
-    print(" [*] Connecting to server ...")
 
-    user = os.getenv("RABBIT_USER")
-    password = os.getenv("RABBIT_PASSWORD")
-    host = os.getenv("RABBIT_HOST")
+class RabbitWorker:
+    def __init__(self, worker_name="that_default_worker"):
+        self.task_number_from_worker = 0
+        self.worker_name = worker_name
+        # Sleep for 20 sec to ensure that rabbit server started
+        print(" [*] Sleeping for 60 seconds.")
+        time.sleep(60)
+        print(" [*] After sleep")
+        print(" [*] Connecting to server ...")
 
-    credentials = pika.PlainCredentials(user, password)
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host=host, credentials=credentials)
-    )
+        self.user = os.getenv("RABBIT_USER")
+        self.password = os.getenv("RABBIT_PASSWORD")
+        self.host = os.getenv("RABBIT_HOST")
 
-    channel = connection.channel()
-
-    channel.queue_declare(queue="hello", durable=True)
-
-    def callback(ch, method, properties, body):
-        print(" [x] Received %r" % body)
-        with open("temp.txt", "a") as file:
-            file.write(f"{datetime.datetime.now()} \n")
-
-        random_delay = random.randint(10, 20)
-        print(f" [x] Delaing for {random_delay} sec")
-        time.sleep(random_delay)
-
-        ch.basic_publish(
-            exchange="",
-            routing_key=properties.reply_to,
-            body=body,
-            properties=pika.BasicProperties(correlation_id=properties.correlation_id),
+        self.credentials = pika.PlainCredentials(self.user, self.password)
+        self.connection = pika.BlockingConnection(
+            pika.ConnectionParameters(host=self.host, credentials=self.credentials)
         )
-        ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    channel.basic_qos(prefetch_count=1)
-    channel.basic_consume(
-        queue="hello", on_message_callback=callback
-    )  # , auto_ack=True)
+        self.channel = self.connection.channel()
 
-    print(" [*] Waiting for messages. To exit press CTRL+C")
+        self.channel.queue_declare(queue="hello", durable=True)
 
-    channel.start_consuming()
+        def callback(ch, method, properties, body):
+            print(" [x] Received %r" % body)
+            with open("temp.txt", "a") as file:
+                file.write(f"{datetime.datetime.now()} \n")
 
-    print("End of worker")
+            random_delay = random.randint(10, 20)
+            print(f" [x] Delaing for {random_delay} sec")
+            time.sleep(random_delay)
+
+            print(f"Num - {self.task_number_from_worker}")
+            self.task_number_from_worker += 1
+            new_body = (
+                body.decode() + f" {self.task_number_from_worker}, from {worker_name}"
+            )
+            new_body = new_body.encode()
+            ch.basic_publish(
+                exchange="",
+                routing_key=properties.reply_to,
+                body=new_body,
+                properties=pika.BasicProperties(
+                    correlation_id=properties.correlation_id
+                ),
+            )
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+
+        self.channel.basic_qos(prefetch_count=1)
+        self.channel.basic_consume(
+            queue="hello", on_message_callback=callback
+        )  # , auto_ack=True)
+
+        print(" [*] Waiting for messages. To exit press CTRL+C")
+
+        self.channel.start_consuming()
+
+        print("End of worker")
 
 
 if __name__ == "__main__":

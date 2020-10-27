@@ -46,7 +46,7 @@ def run_worker():
         result_dict = {"finished": True, "message": message_str}
         result_json = json.dumps(result_dict)
         print("Publishing to result_channel...")
-        random_delay = random.randint(10, 50)
+        random_delay = random.randint(10, 20)
         time.sleep(random_delay)
 
         r.publish("result_channel", result_json)

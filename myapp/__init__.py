@@ -1,7 +1,7 @@
 import json
 
 from celery import Celery
-from flask import Flask, current_app, url_for, redirect, render_template, _app_ctx_stack
+from flask import Flask, current_app, url_for, redirect, render_template, _app_ctx_stack, request
 import redis
 import pika
 
@@ -35,9 +35,10 @@ def create_app():
     def rabbit_view():
         return render_template("rabbit_page.html", queues_names = rabbit_client.rabbit_queue_list)
 
-    @app.route("/rabbit_create")
+    @app.route("/rabbit_create", methods = ['POST'])
     def rabbit_create():
-        rabbit_client.send_message("Hello World!")
+        json_from_request = request.get_json()
+        rabbit_client.send_message(json_from_request['message'])
         return f"Task started!", 200
 
     @app.route("/rabbit_result")

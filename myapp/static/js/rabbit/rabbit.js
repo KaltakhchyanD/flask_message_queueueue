@@ -1,13 +1,14 @@
 class Model {
 
-    async start_task() {
+    async start_task(message_json) {
         let options = {
-            method: "GET",
+            method: "POST",
             cache: "no-cache",
             headers: {
                 "Content-Type": "application/json",
                 "accepts": "application/json"
-            }
+            },
+            body: JSON.stringify(message_json)
         };
         // Call the REST endpoint and wait for data
         let endpoint_url = "/rabbit_create";
@@ -131,8 +132,12 @@ class Controller{
 
     async start_task_button_action(evt, button){
         evt.preventDefault();
-        try {   
-            let response = await this.model.start_task();
+        try {
+            let create_json = {
+                "message":$("#messageInput").val()+' #'+tasks_sent
+            }   
+            let response = await this.model.start_task(create_json);
+
             console.log(response)
             console.log('Seconds at start - ');
             console.log(seconds);

@@ -139,10 +139,10 @@ class Controller{
             let response = await this.model.start_task(create_json);
 
             console.log(response)
-            console.log('Seconds at start - ');
-            console.log(seconds);
+            //console.log('Seconds at start - ');
+            //console.log(seconds);
             this.view.show_task_been_created();
-            this.view.start_timer();
+            //this.view.start_timer();
             this.view.clear_final_result();
             this.view.clear_timer_result();
             tasks_sent++;
@@ -163,10 +163,10 @@ class Controller{
 
 
             this.view.show_final_result(response['message']);
-            console.log(seconds);
-            this.view.stop_timer();
-            this.view.view_timer();
-            this.view.clear_timer();
+            //console.log(seconds);
+            //this.view.stop_timer();
+            //this.view.view_timer();
+            //this.view.clear_timer();
             this.view.clear_task_been_created();
         } catch(err) {
             console.log(err)

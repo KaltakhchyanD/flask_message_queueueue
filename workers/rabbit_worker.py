@@ -34,7 +34,7 @@ class RabbitWorker:
         self.channel.queue_declare(queue="hello", durable=True)
 
         def callback(ch, method, properties, body):
-            print(" [x] Received %r" % body)
+            print(f" [x] Received {body} of id {properties.correlation_id}")
             with open("temp.txt", "a") as file:
                 file.write(f"{datetime.datetime.now()} \n")
 

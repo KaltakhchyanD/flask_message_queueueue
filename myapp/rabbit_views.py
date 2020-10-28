@@ -44,9 +44,11 @@ def rabbit_check_result():
         return {"status": "Pending"}, 200
 
 
-@blueprint.route("/rabbit_result_blocking")
+@blueprint.route("/rabbit_result_blocking", methods = ['POST'])
 def rabbit_check_result_blocking():
-    response = rabbit_client.check_response_long()
+    json_from_request = request.get_json()
+    task_id = json_from_request["task_id"]
+    response = rabbit_client.check_response_long(task_id)
     print(f"Type of response - {type(response)}")
     if response:
         return (

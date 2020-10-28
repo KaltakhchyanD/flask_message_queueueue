@@ -42,7 +42,7 @@ class RabbitClient:
     def response_callback(self, ch, method, properties, body):
         print(f"ANYTHIIIING {self.corr_id}")
         if self.corr_id == properties.correlation_id:
-            self.response = body
+            self.response = {"body": body, "task_id": self.corr_id}
 
     def check_response_once(self):
         # Non blocking check for result once
@@ -58,13 +58,13 @@ class RabbitClient:
         return self.response
 
 
-    def send_message(self, message):
+    def send_message(self, message, task_id = None):
         # connection = pika.BlockingConnection(
         #    pika.ConnectionParameters(host=self.rabbit_host, credentials=self.rabbit_credentials)
         # )
         # rabbit_channel = connection.channel()
         self.response = None
-        self.corr_id = str(uuid.uuid4())
+        self.corr_id = task_id or str(uuid.uuid4())
 
 
         def publish_message():

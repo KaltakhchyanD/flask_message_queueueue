@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import random
 import time
@@ -31,7 +32,17 @@ class RabbitWorker:
 
         self.channel = self.connection.channel()
 
+        # Declare default queue to get messages from RabbitClient
         self.channel.queue_declare(queue="hello", durable=True)
+
+
+        # Declare queue that contains messages for worker
+        # to declare to newly created queue
+        # So queues can be created at RabbitClient
+        # and then worker can declare it to and start consuming
+        queue_to_create_queues = "create_queue"
+        #self.rabbit_queue_list.append(queue_to_create_queues)
+        self.channel.queue_declare(queue=queue_to_create_queues, durable=True)
 
         def callback(ch, method, properties, body):
             print(f" [x] Received {body} of id {properties.correlation_id}")

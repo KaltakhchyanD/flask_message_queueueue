@@ -21,21 +21,30 @@ class RabbitClient:
         self.response_dict = dict()
 
         self.rabbit_channel = self.connection.channel()
-        queue_name = "hello"
-        self.rabbit_queue_list.append(queue_name)
-        self.rabbit_channel.queue_declare(queue=queue_name, durable=True)
 
-        #
+        # Declare default queue used to send messages
+        default_queue_name = "hello"
+        self.rabbit_queue_list.append(default_queue_name)
+        self.rabbit_channel.queue_declare(queue=default_queue_name, durable=True)
+
+        # Declare queue that contains messages for worker
+        # to declare to newly created queue
+        # So queues can be created at RabbitClient
+        # and then worker can declare it to and start consuming
+        queue_to_create_queues = "create_queue"
+        # 'Tis a list of queues to send real messages on
+        # not the maintenance ones like one below
+        # self.rabbit_queue_list.append(queue_to_create_queues)
+        self.rabbit_channel.queue_declare(queue=queue_to_create_queues, durable=True)
+
         result = self.rabbit_channel.queue_declare(queue="", exclusive=True)
         self.callback_queue = result.method.queue
 
-        print("B4")
         self.rabbit_channel.basic_consume(
             queue=self.callback_queue,
             on_message_callback=self.response_callback,
             auto_ack=True,
         )
-        print("After")
 
         # self.rabbit_channel.start_consuming()
 
@@ -71,11 +80,6 @@ class RabbitClient:
         return self.response_dict[task_id]
 
     def send_message(self, message, task_id=None):
-        # connection = pika.BlockingConnection(
-        #    pika.ConnectionParameters(host=self.rabbit_host, credentials=self.rabbit_credentials)
-        # )
-        # rabbit_channel = connection.channel()
-        # self.response = None
         corr_id = task_id or str(uuid.uuid4())
         self.correlation_id_set.add(corr_id)
         self.response_dict[task_id] = None
@@ -102,3 +106,6 @@ class RabbitClient:
         print(" [x] Sent 'Hello World!'")
 
         # connection.close()
+
+    def send_create_queue_message(self, message):
+        pass

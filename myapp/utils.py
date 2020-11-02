@@ -1,3 +1,4 @@
+import json
 import time
 import uuid
 
@@ -31,11 +32,13 @@ class RabbitClient:
         # to declare to newly created queue
         # So queues can be created at RabbitClient
         # and then worker can declare it to and start consuming
-        queue_to_create_queues = "create_queue"
+        self.queue_to_create_queues = "create_queue"
         # 'Tis a list of queues to send real messages on
         # not the maintenance ones like one below
         # self.rabbit_queue_list.append(queue_to_create_queues)
-        self.rabbit_channel.queue_declare(queue=queue_to_create_queues, durable=True)
+        self.rabbit_channel.queue_declare(
+            queue=self.queue_to_create_queues, durable=True
+        )
 
         result = self.rabbit_channel.queue_declare(queue="", exclusive=True)
         self.callback_queue = result.method.queue
@@ -107,5 +110,13 @@ class RabbitClient:
 
         # connection.close()
 
-    def send_create_queue_message(self, message):
-        pass
+    def send_create_queue_message(self, queue_name):
+        message_json = {"name": queue_name}
+        message_string = json.dumps(message_json)
+
+        self.rabbit_channel.basic_publish(
+            exchange="",
+            routing_key=self.queue_to_create_queues,
+            body=message_string,
+            properties=pika.BasicProperties(delivery_mode=2),  # make message persistent
+        )

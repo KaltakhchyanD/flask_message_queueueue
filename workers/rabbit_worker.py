@@ -33,16 +33,17 @@ class RabbitWorker:
         self.channel = self.connection.channel()
 
         # Declare default queue to get messages from RabbitClient
-        self.channel.queue_declare(queue="hello", durable=True)
+        self.channel.queue_declare(queue="message_q_0", durable=True)
+        self.channel.queue_declare(queue="message_q_1", durable=True)
+        self.channel.queue_declare(queue="message_q_2", durable=True)
 
-
-        # Declare queue that contains messages for worker
-        # to declare to newly created queue
-        # So queues can be created at RabbitClient
-        # and then worker can declare it to and start consuming
-        queue_to_create_queues = "create_queue"
-        #self.rabbit_queue_list.append(queue_to_create_queues)
-        self.channel.queue_declare(queue=queue_to_create_queues, durable=True)
+        ## Declare queue that contains messages for worker
+        ## to declare to newly created queue
+        ## So queues can be created at RabbitClient
+        ## and then worker can declare it to and start consuming
+        # queue_to_create_queues = "create_queue"
+        ##self.rabbit_queue_list.append(queue_to_create_queues)
+        # self.channel.queue_declare(queue=queue_to_create_queues, durable=True)
 
         def callback(ch, method, properties, body):
             print(f" [x] Received {body} of id {properties.correlation_id}")
@@ -70,9 +71,9 @@ class RabbitWorker:
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
         self.channel.basic_qos(prefetch_count=1)
-        self.channel.basic_consume(
-            queue="hello", on_message_callback=callback
-        )  # , auto_ack=True)
+        self.channel.basic_consume(queue="message_q_0", on_message_callback=callback)
+        self.channel.basic_consume(queue="message_q_1", on_message_callback=callback)
+        self.channel.basic_consume(queue="message_q_2", on_message_callback=callback)
 
         print(" [*] Waiting for messages. To exit press CTRL+C")
 

@@ -9,26 +9,32 @@
 <br>
 <div id="queues_names">
     {% for queue_name in queues_names %}
+      <div id={{queue_name}}>
         <h4>Queue: {{queue_name}}</h4>
         <img src="/static/images/queue.png">
         <div id="number_tasks_sent"></div>
         <div id="number_responses_received"></div>
-        <br>
         <label for="messageInputField">Type some text</label>
         <input type="text" class="form-control" id="messageInput">
-
+        <br>
+        <button id={{queue_name}} name="StartTask" type="submit" class="btn btn-danger">Start task with RabbitMQ!</button>
+        <br>
+        <button id={{queue_name}} name="CheckResult" type="submit" class="btn btn-danger">Check result</button>
+        <br>        
+        <div id="task_created"></div>
+        <br>
+        <br>          
+        <br>
+      </div>
     {% endfor %}
 </div>
 <br>
 
 
-<button name="StartTask" type="submit" class="btn btn-danger">Start task with RabbitMQ!</button>
 
-<div id="task_created"></div>
-<br>
 
-<button name="CheckResult" type="submit" class="btn btn-danger">Check result</button>
-<br>
+
+
 
 <div id="stop_clock"></div>
 <br>

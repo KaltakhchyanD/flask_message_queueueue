@@ -22,7 +22,9 @@ def rabbit_view():
 def rabbit_create():
     json_from_request = request.get_json()
     rabbit_client.send_message(
-        json_from_request["message"], json_from_request["task_id"]
+        json_from_request["message"],
+        json_from_request["task_id"],
+        json_from_request["queue_name"],
     )
     return f"Task started!", 200
 
@@ -44,11 +46,11 @@ def rabbit_check_result():
         return {"status": "Pending"}, 200
 
 
-@blueprint.route("/rabbit_result_blocking", methods = ['POST'])
+@blueprint.route("/rabbit_result_blocking", methods=["POST"])
 def rabbit_check_result_blocking():
     json_from_request = request.get_json()
     task_id = json_from_request["task_id"]
-    response = rabbit_client.check_response_long(task_id)
+    response = rabbit_client.check_response_blocking(task_id)
     print(f"Type of response - {type(response)}")
     if response:
         return (

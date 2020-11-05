@@ -4,8 +4,8 @@
 
 <br>
 <br>
+<h2>Посылает введенное сообщение, возвращает его же с рандомной задержкой 10-20 с</h1>
 
-<h2>Press button to start task</h2>
 <br>
 <div id="queues_names">
     {% for queue_name in queues_names %}
@@ -19,6 +19,8 @@
         <br>
         <button id={{queue_name}} name="StartTask" type="submit" class="btn btn-danger">Start task with RabbitMQ!</button>
         <br>
+        <br>
+        
         <button id={{queue_name}} name="CheckResult" type="submit" class="btn btn-danger">Check result</button>
         <br>        
         <div id="task_created"></div>

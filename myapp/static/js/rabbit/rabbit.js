@@ -156,17 +156,17 @@ class Controller{
         evt.preventDefault();
         try {   
             let queue_name = button.id
-            console.log('Q name from check result - '+ queue_name);
+            //console.log('Q name from check result - '+ queue_name);
             // Set all tasks to pending
             let ids_of_tasks = [];
 
             //$(".task_created").each(function() {
             $("#"+queue_name).children("#task_created").children(".task_created").each(function() {
-                console.log($(this).attr('id'));
+                //console.log($(this).attr('id'));
                 ids_of_tasks.push($(this).attr('id'));
                 $(this).addClass('task_pending').removeClass('task_created');
             });
-            console.log(".task_created - "+$("#"+queue_name).children("#task_created").children(".task_created"));
+            //console.log(".task_created - "+$("#"+queue_name).children("#task_created").children(".task_created"));
             console.log("ids_of_tasks - "+ ids_of_tasks);     
 
             // Нужна проверка на непустоту списка ids_of_tasks
@@ -186,16 +186,21 @@ class Controller{
 
                 
                 let id_to_get_response = ids_of_tasks.shift();
-                console.log('Id to get response - '+id_to_get_response);
-                let response = await this.model.check_result(id_to_get_response);
-                
+                console.log('CMON, id to get - '+id_to_get_response);
+                if (id_to_get_response !== undefined) {
+                    console.log('Id to get response - '+id_to_get_response);
+                    let response = await this.model.check_result(id_to_get_response);
+                    
 
-                console.log(response);
-                responses_received_json[queue_name]++;
-                this.view.show_number_responses();
-                console.log("Task id from back - "+response['task_id']);
+                    console.log(response);
+                    responses_received_json[queue_name]++;
+                    this.view.show_number_responses();
+                    console.log("Task id from back - "+response['task_id']);
 
-                this.view.show_final_result(response['message'], response['task_id']);
+                    this.view.show_final_result(response['message'], response['task_id']);
+                } else {
+                    break;
+                }
             }
             console.log('Counters after: '+responses_received_json[queue_name]+" "+tasks_sent_json[queue_name]);
 

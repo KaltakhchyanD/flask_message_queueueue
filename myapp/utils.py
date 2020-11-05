@@ -106,10 +106,25 @@ class RabbitClient:
 
         try:
             publish_message()
-        except pika.exceptions.ChannelWrongStateError as e:
-            print(f"There was a ChannelWrongStateError exception, reopening it")
+        #except pika.exceptions.ChannelWrongStateError as e:
+        #    print(f"There was a ChannelWrongStateError exception, reopening it")
+        #    self.rabbit_channel = self.connection.channel()
+        #    publish_message()
+        except pika.exceptions.StreamLostError as e:
+            print(f'There was a StreamLostError exception, reconnecting')
+            self.connection = pika.BlockingConnection(
+                pika.ConnectionParameters(
+                host=self.rabbit_host, credentials=self.rabbit_credentials
+                )
+            )
+            print(f"Alse reopen channel so there is no ChannelWrongStateError")
             self.rabbit_channel = self.connection.channel()
             publish_message()
+
+            #try:
+            #except pika.exceptions.ChannelWrongStateError as e:
+            #    self.rabbit_channel = self.connection.channel()
+            #    publish_message()
 
         print(" [x] Sent 'Hello World!'")
 

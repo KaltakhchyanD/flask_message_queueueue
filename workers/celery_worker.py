@@ -1,13 +1,9 @@
 import datetime
+import random
+import time
 
 from flask import current_app, _app_ctx_stack
 
-
-# app = Celery('celery_worker', broker = 'pyamqp://rabbit:mq@rabbit:5672')
-#app = Celery("celery_worker", broker="pyamqp://guest:guest@localhost:5672")
-
-
-# app.autodiscover_tasks()
 from workers.celery_utils import make_celery
 
 celery_app = make_celery("myapp")
@@ -24,7 +20,14 @@ def write_task(something):
         with open("temp.txt", "a") as file:
             file.write(f"{datetime.datetime.now()} \n")
     print(f"FROM TASK - {something}")
-    #print(f"App context - {_app_ctx_stack.top}")
-    #print(f"Type of task - {type(celery_app.Task())}")
-    #print(f"Attr cehck - {celery_app.Task.testcheck}")
     return something
+
+
+@celery_app.task
+def dummy_task(task_json):
+    task_id = task_json["task_id"]
+    message = task_json["message"]
+    random_delay = random.randint(10, 20)
+    print(f" [x] Celery worker: Delaing for {random_delay} sec")
+    time.sleep(random_delay)
+    print(f" [x] Celery worker: Task for message {message} complete!")

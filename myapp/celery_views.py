@@ -7,13 +7,25 @@ blueprint = Blueprint("celery", __name__, url_prefix="")
 
 @blueprint.route("/celery")
 def celery_view():
-    write_task.delay("to prinTTT")
-    return "Hey celery", 200
+    return render_template('celery_page.html')
 
 
-@blueprint.route("/celery_task")
+@blueprint.route("/celery_create_task", methods=["POST"])
 def run_task():
-    dummy_task_json = {"task_id": "1234", "message": "Hi there!"}
-    dummy_task.delay(dummy_task_json)
+    task_json = request.get_json()
+
+    if "message" not in task_json.keys() and "task_id" not in task_json.keys():
+        return (
+            {
+                "error_code": 400,
+                "error_message": "task_json should contain 'message' and 'task_id' ",
+            },
+            400,
+        )
+
+    if not task_json["task_id"]:
+        return {"error_code": 400, "error_message": "task_id should not be empty"}, 400
+
+    dummy_task.delay(task_json)
     print("Started celery task")
     return "<h1>Started celery task</h1>"

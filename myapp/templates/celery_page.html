@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<br>
+<br>
+<h2>Посылает введенное сообщение, возвращает его же с рандомной задержкой 10-20 с</h1>
+
+<br>
+      <div>
+        <div id="number_tasks_sent"></div>
+        <div id="number_responses_received"></div>
+        <label for="messageInputField">Type some text</label>
+        <input type="text" class="form-control" id="messageInput">
+        <br>
+        <button name="StartTask" type="submit" class="btn btn-danger">Start task with Celery!</button>
+        <br>
+        <br>
+        
+        <button name="CheckResult" type="submit" class="btn btn-danger">Check result</button>
+        <br>        
+        <div id="task_created"></div>
+        <br>
+        <br>          
+        <br>
+      </div>
+<br>
+
+
+
+
+<div id="final_result"></div>
+
+{% endblock %}
+
+
+{% block scripts%}
+  <script type="module">
+      // Give the imported MVC components a namespace
+      import * as MVC from "/static/js/celery/celery.js";
+
+      // Create an intentional global variable referencing the import
+      window.mvc = MVC;
+  </script>
+{% endblock %}

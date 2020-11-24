@@ -31,3 +31,7 @@ def dummy_task(task_json):
     print(f" [x] Celery worker: Delaing for {random_delay} sec")
     time.sleep(random_delay)
     print(f" [x] Celery worker: Task for message {message} complete!")
+
+    result_message = message+ "".join([str(random.randint(0, 9)) for i in range(3)])
+    return result_message
+

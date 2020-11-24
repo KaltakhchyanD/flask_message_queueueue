@@ -4,11 +4,15 @@ from celery import Celery
 
 
 def make_celery(app_name=__name__):
-    user = os.getenv('RABBIT_USER')
-    password = os.getenv('RABBIT_PASSWORD')
-    host = os.getenv('RABBIT_HOST')
+    user = os.getenv("RABBIT_USER")
+    password = os.getenv("RABBIT_PASSWORD")
+    host = os.getenv("RABBIT_HOST")
+    redis_host = os.getenv("REDIS_HOST")
+    backend = f"redis://{redis_host}"
 
-    celery_app = Celery(app_name, broker=f"pyamqp://{user}:{password}@{host}:5672")
+    celery_app = Celery(
+        app_name, backend=backend, broker=f"pyamqp://{user}:{password}@{host}:5672"
+    )
     # celery.conf.update(app.config)
     return celery_app
 

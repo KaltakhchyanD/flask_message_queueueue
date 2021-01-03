@@ -11,3 +11,8 @@ Installation:
 Using without docker-compose
 - cd flask_queue_app && python run_server.py
 - in another terminal window - python run_server.py redis/rabbit/celery - this runs respective docker image with redis, rabbit or celery
+
+
+Using with docker-compose
+- docker compose build
+- docker compose up

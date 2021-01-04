@@ -32,7 +32,6 @@ class Model {
         let data = await response.json();
         return data;
     }
-
 }
 
 
@@ -71,10 +70,8 @@ class View {
         data_html+= "<h3>Message: "+message+"</h3>" 
         data_html+="<br>"
         data_html+= "</div>"
-
         $("#"+task_id).html(data_html);
     }
-
 }
 
 
@@ -85,9 +82,7 @@ function uuidv4() {
   });
 }
 
-
 let pending_tasks_id = []
-
 
 class Controller{
     constructor(model, view) {

@@ -1,7 +1,11 @@
 # flask_message_queueueue
-Dummy Flask app to check queues with Redis, RabbitMQ and Celery
+Dummy Flask app that uses queues with Redis, RabbitMQ and Celery
 
-This app requires python3.6 and Docker
+It has:
+- /redis page, where you can "start task" and recieve result message via redis PubSub
+- 
+
+This app requires python3.6, docker, docker-compose
 
 Installation:
 - python3.6 -m venv env 

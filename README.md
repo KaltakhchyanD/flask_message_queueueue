@@ -3,7 +3,7 @@ Dummy Flask app that uses queues with Redis, RabbitMQ and Celery
 
 It has:
 - /redis page, where you can "start task" and recieve result message via redis PubSub
-- 
+- /rabbit page, where you can "start task" at 1 of 3 queues and recieve result
 - /celery page, where you can "start task" with async celery worker and rabbit queue and recieve result message through result backend, which is redis
 
 This app requires python3.6, docker, docker-compose

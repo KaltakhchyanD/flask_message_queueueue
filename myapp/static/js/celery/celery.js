@@ -12,8 +12,8 @@ class Model {
         // Call the REST endpoint and wait for data
         let endpoint_url = "/celery_create_task";
         let response = await fetch(endpoint_url, options);
-        let data = await response.text();
-        return data;
+
+        return response;
     }
 
     async check_result(message_json) {
@@ -72,6 +72,19 @@ class View {
         data_html+= "</div>"
         $("#"+task_id).html(data_html);
     }
+
+    show_custom_400_error(message){
+        let data_html ="<br>"
+        data_html+="<h4>"+message+"</h4>"
+        data_html+="<br>"
+        $("#error_message").html(data_html);
+    }
+
+    clear_custom_400_error(message){
+        let data_html =""
+        $("#error_message").html(data_html);
+    }
+
 }
 
 
@@ -102,12 +115,32 @@ class Controller{
             let task_id = uuidv4();
             let create_json = {
                 "message":$("#messageInput").val(),
+                "quantity":$("#numberOfTasks").val(),
+                "priority":$("#prioritySelect").val(),
                 "task_id":task_id,
             }
             let response = await this.model.start_task(create_json);
-            pending_tasks_id.push(task_id);
-            console.log(response)
-            this.view.show_task_been_created(task_id);
+            console.log(response);
+
+            if (response['status']==400) {
+                let error_json = await response.json();
+                let error_code = error_json["error_code"];
+                let error_message = "";
+                if (error_code==1 || (5<=error_code && error_code<=8)) {
+                    error_message = "All parameters are necessery";
+                } else if (2<=error_code && error_code<=4){
+                    error_message = error_json["error_message"];
+                }  else{
+                    error_message = "Something went wrong";
+                }
+                this.view.show_custom_400_error(error_message);
+
+            } else if (response['status']==200){
+                this.view.clear_custom_400_error();
+                pending_tasks_id.push(task_id);
+                this.view.show_task_been_created(task_id);
+            }
+
         } catch(err) {
             console.log(err)
         }

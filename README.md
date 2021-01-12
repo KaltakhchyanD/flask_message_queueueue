@@ -12,6 +12,7 @@ Installation:
 - python3.6 -m venv env 
 - source env/bin/activate
 - git clone git@github.com:KaltakhchyanD/flask_message_queueueue.git flask_queue_app
+- pip install -r requirements.txt
 
 Using without docker-compose
 - cd flask_queue_app && python run_server.py

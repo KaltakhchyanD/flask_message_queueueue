@@ -4,10 +4,10 @@ import time
 
 from flask import current_app, _app_ctx_stack
 
-from workers.celery_utils import make_celery
+from workers.celery_utils import CeleryClient
 
-celery_app = make_celery("myapp")
-
+celery_client = CeleryClient()
+celery_app = celery_client.make_celery("myapp")
 
 @celery_app.task
 def add(a, b):

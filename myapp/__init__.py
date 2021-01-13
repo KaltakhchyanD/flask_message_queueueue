@@ -3,13 +3,6 @@ from flask import Flask, current_app, url_for, redirect, render_template, _app_c
 
 from myapp.config import Config
 from myapp.utils import RabbitClient
-from myapp.redis_views import blueprint as redis_bp
-from myapp.celery_views import blueprint as celery_bp
-
-from workers.celery_utils import init_celery
-from workers.celery_worker import celery_app
-
-# from workers import celery_worker
 
 
 def create_app():
@@ -21,12 +14,13 @@ def create_app():
     # Import here and with context manualy pushed so it can access context
     with app.app_context():
         from myapp.rabbit_views import blueprint as rabbit_bp
+        from myapp.redis_views import blueprint as redis_bp
+        from myapp.celery_views import blueprint as celery_bp
 
     app.register_blueprint(rabbit_bp)
     app.register_blueprint(redis_bp)
     app.register_blueprint(celery_bp)
 
-    init_celery(celery_app, app)
 
     @app.route("/", methods=["GET"])
     def index():

@@ -29,8 +29,7 @@ class Model {
         // Call the REST endpoint and wait for data
         let endpoint_url = "/celery_check_result";
         let response = await fetch(endpoint_url, options);
-        let data = await response.json();
-        return data;
+        return response;
     }
 }
 
@@ -73,14 +72,14 @@ class View {
         $("#"+task_id).html(data_html);
     }
 
-    show_custom_400_error(message){
+    show_custom_error(message){
         let data_html ="<br>"
         data_html+="<h4>"+message+"</h4>"
         data_html+="<br>"
         $("#error_message").html(data_html);
     }
 
-    clear_custom_400_error(message){
+    clear_custom_error(message){
         let data_html =""
         $("#error_message").html(data_html);
     }
@@ -94,6 +93,25 @@ function uuidv4() {
     return v.toString(16);
   });
 }
+
+
+function get_error_message_by_code(error_json){
+    let error_code = error_json["error_code"];
+    let error_message = '';
+
+    if (error_code==1 || (5<=error_code && error_code<=8)) {
+        error_message = "All parameters are necessery";
+    } else if (2<=error_code && error_code<=4){
+        error_message = error_json["error_message"];
+    
+    } else if (10<=error_code && error_code<=12){
+        error_message = error_json["error_message"];
+    }  else{
+        error_message = "Something went wrong";
+    }
+    return error_message;
+}
+
 
 let pending_tasks_id = []
 
@@ -124,19 +142,12 @@ class Controller{
 
             if (response['status']==400) {
                 let error_json = await response.json();
-                let error_code = error_json["error_code"];
-                let error_message = "";
-                if (error_code==1 || (5<=error_code && error_code<=8)) {
-                    error_message = "All parameters are necessery";
-                } else if (2<=error_code && error_code<=4){
-                    error_message = error_json["error_message"];
-                }  else{
-                    error_message = "Something went wrong";
-                }
-                this.view.show_custom_400_error(error_message);
+                let error_message = get_error_message_by_code(error_json);
+
+                this.view.show_custom_error(error_message);
 
             } else if (response['status']==200){
-                this.view.clear_custom_400_error();
+                this.view.clear_custom_error();
                 pending_tasks_id.push(task_id);
                 this.view.show_task_been_created(task_id);
             }
@@ -158,21 +169,36 @@ class Controller{
             // Iterate over pending tasks list
             // If its ready - show it
             // then increment counter
-            let ready_tasks = 0;
+            let tasks_to_delete_from_local_queue = 0;
             for (let task_id of pending_tasks_id){
                 let check_result_json = {'task_id':task_id};
                 let response = await this.model.check_result(check_result_json);
 
-                if (response["status"]==="Ready"){
-                    console.log("CMOOON");
-                    this.view.show_task_is_ready(task_id, response["message"]);
-                    ready_tasks++;
+
+                if (response['status']==400||response['status']==500) {
+                    let error_json = await response.json();
+                    let error_message = get_error_message_by_code(error_json);
+                        tasks_to_delete_from_local_queue++;
+
+                    
+                } else if (response['status']==200){
+                    let response_json = await response.json();
+
+                    if (response_json["status"]==="Ready"){
+                        this.view.show_task_is_ready(task_id, response_json["message"]);
+                        tasks_to_delete_from_local_queue++;
+                    }
+
+                this.view.show_custom_error(error_message);
+
                 }
             }
 
             // Remove first n tasks from pending tasks list
-            // where n == num of tasks ready
-            for(let i=0; i<ready_tasks; i++){
+            // where n == num of tasks ready or missing at server
+            // so its ok to shift em
+            // Just need to show proper error message to user
+            for(let i=0; i<tasks_to_delete_from_local_queue; i++){
                 pending_tasks_id.shift();
             }
 

@@ -27,23 +27,21 @@ class RabbitClient:
         self.rabbit_queue_list.append("message_q_0")
         self.rabbit_queue_list.append("message_q_1")
         self.rabbit_queue_list.append("message_q_2")
-        
+
         for q in self.rabbit_queue_list:
             self.rabbit_channel.queue_declare(queue=q, durable=True)
-
- 
 
         ## Declare queue that contains messages for worker
         ## to declare to newly created queue
         ## So queues can be created at RabbitClient
         ## and then worker can declare it to and start consuming
-        #self.queue_to_create_queues = "create_queue"
+        # self.queue_to_create_queues = "create_queue"
         ## 'Tis a list of queues to send real messages on
         ## not the maintenance ones like one below
         ## self.rabbit_queue_list.append(queue_to_create_queues)
-        #self.rabbit_channel.queue_declare(
+        # self.rabbit_channel.queue_declare(
         #    queue=self.queue_to_create_queues, durable=True
-        #)
+        # )
 
         result = self.rabbit_channel.queue_declare(queue="", exclusive=True)
         self.callback_queue = result.method.queue
@@ -87,7 +85,7 @@ class RabbitClient:
         # return self.response
         return self.response_dict[task_id]
 
-    def send_message(self, message, task_id=None, queue_name='message_q_0'):
+    def send_message(self, message, task_id=None, queue_name="message_q_0"):
         corr_id = task_id or str(uuid.uuid4())
         self.correlation_id_set.add(corr_id)
         self.response_dict[task_id] = None
@@ -106,23 +104,23 @@ class RabbitClient:
 
         try:
             publish_message()
-        #except pika.exceptions.ChannelWrongStateError as e:
+        # except pika.exceptions.ChannelWrongStateError as e:
         #    print(f"There was a ChannelWrongStateError exception, reopening it")
         #    self.rabbit_channel = self.connection.channel()
         #    publish_message()
         except pika.exceptions.StreamLostError as e:
-            print(f'There was a StreamLostError exception, reconnecting')
+            print(f"There was a StreamLostError exception, reconnecting")
             self.connection = pika.BlockingConnection(
                 pika.ConnectionParameters(
-                host=self.rabbit_host, credentials=self.rabbit_credentials
+                    host=self.rabbit_host, credentials=self.rabbit_credentials
                 )
             )
             print(f"Alse reopen channel so there is no ChannelWrongStateError")
             self.rabbit_channel = self.connection.channel()
             publish_message()
 
-            #try:
-            #except pika.exceptions.ChannelWrongStateError as e:
+            # try:
+            # except pika.exceptions.ChannelWrongStateError as e:
             #    self.rabbit_channel = self.connection.channel()
             #    publish_message()
 
@@ -130,7 +128,7 @@ class RabbitClient:
 
         # connection.close()
 
-    #def send_create_queue_message(self, queue_name):
+    # def send_create_queue_message(self, queue_name):
     #    message_json = {"name": queue_name}
     #    message_string = json.dumps(message_json)
     #

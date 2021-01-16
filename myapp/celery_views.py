@@ -67,14 +67,18 @@ def check_task_result():
 
     if "task_id" not in task_json.keys():
         return (
-            {"error_code": 400, "error_message": "task_json should contain 'task_id' "},
+            {"error_code": 10, "error_message": "task_json should contain 'task_id' "},
             400,
         )
 
     if not task_json["task_id"]:
-        return {"error_code": 400, "error_message": "task_id should not be empty"}, 400
+        return {"error_code": 11, "error_message": "task_id should not be empty"}, 400
 
-    async_result_to_check = task_id_async_result_dict[task_json["task_id"]]
+    try:
+        async_result_to_check = task_id_async_result_dict[task_json["task_id"]]
+    except KeyError:
+        return {"error_code": 12, "error_message": f"task_id {task_json['task_id']} is not known to server"}, 500
+
 
     if async_result_to_check.ready():
         message = async_result_to_check.get()

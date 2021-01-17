@@ -61,6 +61,16 @@ class View {
         $("#"+task_id).html(data_html);
     }
 
+    show_error_task(task_id){
+        let data_html = "<div class=\"task_pending\" id="+task_id+">";
+        data_html+="<br>"
+        data_html+= "<h3>Task status: Error</h3>" 
+        data_html+="<br>"
+        data_html+= "</div>"
+
+        $("#"+task_id).html(data_html);
+    }
+
     show_task_is_ready(task_id, message){
         //console.log("IN show ready with "+task_id+" and "+message);
         let data_html = "<div class=\"task_pending\" id="+task_id+">";
@@ -174,11 +184,14 @@ class Controller{
                 let check_result_json = {'task_id':task_id};
                 let response = await this.model.check_result(check_result_json);
 
-
+                console.log("response status is "+ response['status']);
+                console.log(response);
                 if (response['status']==400||response['status']==500) {
                     let error_json = await response.json();
                     let error_message = get_error_message_by_code(error_json);
-                        tasks_to_delete_from_local_queue++;
+                    tasks_to_delete_from_local_queue++;
+                    this.view.show_custom_error(error_message);
+                    this.view.show_error_task(task_id);
 
                     
                 } else if (response['status']==200){
@@ -189,7 +202,6 @@ class Controller{
                         tasks_to_delete_from_local_queue++;
                     }
 
-                this.view.show_custom_error(error_message);
 
                 }
             }

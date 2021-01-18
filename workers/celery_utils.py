@@ -2,8 +2,8 @@ import os
 
 from celery import Celery
 
-class CeleryClient():
 
+class CeleryClient:
     def __init__(self):
         self.connection = None
 
@@ -19,7 +19,6 @@ class CeleryClient():
         )
         # celery.conf.update(app.config)
         return celery_app
-
 
     def init_celery(self, celery_app, app):
         celery_app.conf.update(app.config)

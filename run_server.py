@@ -41,6 +41,7 @@ def run_celery():
 def run_redis_worker():
     redis_pubsub_worker.run_worker()
 
+
 def run_rabbit_worker():
     rabbit_worker.run_worker()
 
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     os.environ["RABBIT_HOST"] = "localhost"
     os.environ["RABBIT_USER"] = "guest"
     os.environ["RABBIT_PASSWORD"] = "guest"
-    
+
     params = sys.argv[1:]
     if params:
         for param in params:

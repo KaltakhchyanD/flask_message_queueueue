@@ -11,6 +11,7 @@ celery_client = CeleryClient()
 celery_app = celery_client.make_celery("myapp")
 celery_client.init_celery(celery_app, current_app)
 
+
 @blueprint.route("/celery")
 def celery_view():
     return render_template("celery_page.html")
@@ -77,8 +78,13 @@ def check_task_result():
     try:
         async_result_to_check = task_id_async_result_dict[task_json["task_id"]]
     except KeyError:
-        return {"error_code": 12, "error_message": f"task_id {task_json['task_id']} is not known to server"}, 500
-
+        return (
+            {
+                "error_code": 12,
+                "error_message": f"task_id {task_json['task_id']} is not known to server",
+            },
+            500,
+        )
 
     if async_result_to_check.ready():
         message = async_result_to_check.get()

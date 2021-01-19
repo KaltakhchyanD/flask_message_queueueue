@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, current_app
+from redis.exceptions import ConnectionError 
 
 from workers.celery_worker import write_task, dummy_task
 from workers.celery_utils import CeleryClient
@@ -55,8 +56,23 @@ def run_task():
     if not task_json["task_id"]:
         return {"error_code": 8, "error_message": "task_id should not be empty"}, 400
 
-    async_result = dummy_task.delay(task_json)
-    task_id_async_result_dict[task_json["task_id"]] = async_result
+    try:
+        async_result = dummy_task.delay(task_json)
+    except ConnectionError as e:
+        return (
+            {
+                "error_code": 13,
+                "error_message": f"Redis is not working",
+            },
+            500,
+        )
+
+        print(e)
+        print(type(e))
+    else:
+        print(f"Celery given task id - {async_result.task_id} ")
+        task_id_async_result_dict[task_json["task_id"]] = async_result
+
 
     print("Started celery task")
     return "<h1>Started celery task</h1>"

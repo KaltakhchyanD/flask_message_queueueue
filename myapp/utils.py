@@ -11,11 +11,16 @@ class RabbitClient:
         self.response = None
         self.rabbit_host = rabbit_host
         self.rabbit_credentials = pika.PlainCredentials(rabbit_user, rabbit_password)
+        self.rabbit_connected = False
+
+    def connect_to_rabbit(self):
+        print(' [.] Connecting to RabbitMQ')
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=self.rabbit_host, credentials=self.rabbit_credentials
             )
         )
+        self.rabbit_connected = True
 
         self.rabbit_queue_list = []
         self.correlation_id_set = set()

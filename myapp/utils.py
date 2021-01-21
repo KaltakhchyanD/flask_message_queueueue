@@ -5,6 +5,16 @@ import uuid
 from flask import current_app
 import pika
 
+def catch_connection_error(inner):
+    def outer(self, *args, **kwargs):
+        try:
+            result = inner(self, *args, **kwargs)
+        except pika.exceptions.AMQPError as e:
+            print('There was some AMPQ Exception')
+            self.connected = False
+        else:
+            return result
+    return outer
 
 class RabbitClient:
     def __init__(self, rabbit_host, rabbit_user, rabbit_password):
@@ -12,8 +22,16 @@ class RabbitClient:
         self.rabbit_host = rabbit_host
         self.rabbit_credentials = pika.PlainCredentials(rabbit_user, rabbit_password)
         self.rabbit_connected = False
+        self.rabbit_queue_list = []
+        self.correlation_id_set = set()
+        self.response_dict = dict()
 
+    @catch_connection_error
     def connect_to_rabbit(self):
+        """Connect to RabbitMQ if its not connected aready"""
+        if self.rabbit_connected:
+            return
+
         print(' [.] Connecting to RabbitMQ')
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
@@ -21,10 +39,6 @@ class RabbitClient:
             )
         )
         self.rabbit_connected = True
-
-        self.rabbit_queue_list = []
-        self.correlation_id_set = set()
-        self.response_dict = dict()
 
         self.rabbit_channel = self.connection.channel()
 
@@ -70,11 +84,13 @@ class RabbitClient:
                 "task_id": properties.correlation_id,
             }
 
+    @catch_connection_error
     def check_response_once(self):
         # Non blocking check for result once
         self.connection.process_data_events()
         return self.response
 
+    @catch_connection_error
     def check_response_blocking(self, task_id):
         # Blocking check for result until its ready
         # while self.response is None:
@@ -90,6 +106,7 @@ class RabbitClient:
         # return self.response
         return self.response_dict[task_id]
 
+    @catch_connection_error
     def send_message(self, message, task_id=None, queue_name="message_q_0"):
         corr_id = task_id or str(uuid.uuid4())
         self.correlation_id_set.add(corr_id)
@@ -133,13 +150,3 @@ class RabbitClient:
 
         # connection.close()
 
-    # def send_create_queue_message(self, queue_name):
-    #    message_json = {"name": queue_name}
-    #    message_string = json.dumps(message_json)
-    #
-    #    self.rabbit_channel.basic_publish(
-    #        exchange="",
-    #        routing_key=self.queue_to_create_queues,
-    #        body=message_string,
-    #        properties=pika.BasicProperties(delivery_mode=2),  # make message persistent
-    #    )

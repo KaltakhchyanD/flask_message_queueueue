@@ -5,16 +5,19 @@ import uuid
 from flask import current_app
 import pika
 
+
 def catch_connection_error(inner):
     def outer(self, *args, **kwargs):
         try:
             result = inner(self, *args, **kwargs)
         except pika.exceptions.AMQPError as e:
-            print('There was some AMPQ Exception')
+            print("There was some AMPQ Exception")
             self.connected = False
         else:
             return result
+
     return outer
+
 
 class RabbitClient:
     def __init__(self, rabbit_host, rabbit_user, rabbit_password):
@@ -32,7 +35,7 @@ class RabbitClient:
         if self.rabbit_connected:
             return
 
-        print(' [.] Connecting to RabbitMQ')
+        print(" [.] Connecting to RabbitMQ")
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=self.rabbit_host, credentials=self.rabbit_credentials
@@ -149,4 +152,3 @@ class RabbitClient:
         print(" [x] Sent 'Hello World!'")
 
         # connection.close()
-

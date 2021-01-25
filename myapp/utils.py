@@ -19,6 +19,7 @@ def catch_connection_error(inner):
     return outer
 
 
+
 class RabbitClient:
     def __init__(self, rabbit_host, rabbit_user, rabbit_password):
         self.response = None

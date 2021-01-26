@@ -16,8 +16,8 @@ class RabbitWorker:
         self.task_number_from_worker = 0
         self.worker_name = worker_name
         # Sleep for 20 sec to ensure that rabbit server started
-        print(" [*] Sleeping for 60 seconds.")
-        time.sleep(60)
+        print(" [*] Sleeping for 40 seconds.")
+        time.sleep(40)
         print(" [*] After sleep")
         print(" [*] Connecting to server ...")
 
@@ -31,6 +31,11 @@ class RabbitWorker:
         )
 
         self.channel = self.connection.channel()
+        print(f" [?] Channel at RabbitWorker : {self.channel}")
+        print(f" [?] IS IT OPEN : {self.channel.is_open}")
+        #print(f" [?] ITS DIR : {dir(self.channel)}")
+        print(f" [?] ITS NUMBER : {self.channel.channel_number}")
+        
 
         # Declare default queue to get messages from RabbitClient
         self.channel.queue_declare(queue="message_q_0", durable=True)

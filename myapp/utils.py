@@ -1,3 +1,4 @@
+import functools
 import json
 import time
 import uuid
@@ -7,17 +8,49 @@ import pika
 
 
 def catch_connection_error(inner):
+    @functools.wraps(inner)
     def outer(self, *args, **kwargs):
         try:
             result = inner(self, *args, **kwargs)
         except pika.exceptions.AMQPError as e:
             print("There was some AMPQ Exception")
-            self.connected = False
+            print(f"{e}")
+            self.rabbit_connected = False
         else:
             return result
 
     return outer
 
+
+def reconnect_on_failure(tryes=8, start_interval=5):
+    def decorator(inner):
+        @functools.wraps(inner)
+        def outer(obj, *args, **kwargs):
+            delay = start_interval
+            for i in range(tryes):
+
+                if i > 0:
+                    print(f"Calling {i+1} time")
+
+                result = inner(obj, *args, **kwargs)
+                if obj.rabbit_connected == False:
+                    print("There was some error, reconnect is needed")
+                    print(f"Reconnecting for the {i+1} time")
+                    delay **= 1.1
+                    print(f"New delay is {delay} sec")
+                    print(f"Channel number is {obj.rabbit_channel.channel_number}")
+                    time.sleep(delay)
+                    obj.connect_to_rabbit()
+                else:
+                    if i > 0:
+                        print("Successfuly reconnected")
+                    return result
+
+            print(f"Ran {tryes} times, no connection was established")
+
+        return outer
+
+    return decorator
 
 
 class RabbitClient:
@@ -29,6 +62,7 @@ class RabbitClient:
         self.rabbit_queue_list = []
         self.correlation_id_set = set()
         self.response_dict = dict()
+        self.rabbit_channel = None
 
     @catch_connection_error
     def connect_to_rabbit(self):
@@ -110,6 +144,7 @@ class RabbitClient:
         # return self.response
         return self.response_dict[task_id]
 
+    @reconnect_on_failure()
     @catch_connection_error
     def send_message(self, message, task_id=None, queue_name="message_q_0"):
         corr_id = task_id or str(uuid.uuid4())

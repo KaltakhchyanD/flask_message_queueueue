@@ -22,12 +22,12 @@ def catch_connection_error(inner):
     return outer
 
 
-def reconnect_on_failure(tryes=8, start_interval=5):
+def reconnect_on_failure(tries=8, start_interval=5):
     def decorator(inner):
         @functools.wraps(inner)
         def outer(obj, *args, **kwargs):
             delay = start_interval
-            for i in range(tryes):
+            for i in range(tries):
 
                 if i > 0:
                     print(f"Calling {i+1} time")
@@ -46,7 +46,7 @@ def reconnect_on_failure(tryes=8, start_interval=5):
                         print("Successfuly reconnected")
                     return result
 
-            print(f"Ran {tryes} times, no connection was established")
+            print(f"Ran {tries} times, no connection was established")
 
         return outer
 

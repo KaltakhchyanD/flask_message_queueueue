@@ -1,5 +1,6 @@
 import functools
 import json
+import random
 import time
 import uuid
 
@@ -13,7 +14,7 @@ def catch_connection_error(inner):
         try:
             result = inner(self, *args, **kwargs)
         except pika.exceptions.AMQPError as e:
-            print("There was some AMPQ Exception")
+            print(" [Rabbit Client] There was some AMPQ Exception")
             print(f"{e}")
             self.rabbit_connected = False
         else:
@@ -35,18 +36,19 @@ def reconnect_on_failure(tries=8, start_interval=5):
                 result = inner(obj, *args, **kwargs)
                 if obj.rabbit_connected == False:
                     print("There was some error, reconnect is needed")
-                    print(f"Reconnecting for the {i+1} time")
-                    delay **= 1.1
+                    print(f" [Rabbit Client] Reconnecting for the {i+1} time")
+                    power = random.uniform(1.1, 1.3)
+                    delay **= power
                     print(f"New delay is {delay} sec")
                     print(f"Channel number is {obj.rabbit_channel.channel_number}")
                     time.sleep(delay)
                     obj.connect_to_rabbit()
                 else:
                     if i > 0:
-                        print("Successfuly reconnected")
+                        print(" [Rabbit Client] Successfuly reconnected")
                     return result
 
-            print(f"Ran {tries} times, no connection was established")
+            print(f" [Rabbit Client] Ran {tries} times, no connection was established")
 
         return outer
 
@@ -70,7 +72,7 @@ class RabbitClient:
         if self.rabbit_connected:
             return
 
-        print(" [.] Connecting to RabbitMQ")
+        print(" [Rabbit Client] Connecting to RabbitMQ")
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=self.rabbit_host, credentials=self.rabbit_credentials
@@ -185,6 +187,6 @@ class RabbitClient:
             #    self.rabbit_channel = self.connection.channel()
             #    publish_message()
 
-        print(" [x] Sent 'Hello World!'")
+        print(" [Rabbit Client] Sent 'Hello World!'")
 
         # connection.close()

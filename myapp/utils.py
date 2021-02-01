@@ -21,7 +21,6 @@ def catch_connection_error(inner):
             return result
 
     return outer
-    
 
 
 def reconnect_on_failure(tries=8, start_interval=5):

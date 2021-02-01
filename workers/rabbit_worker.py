@@ -33,9 +33,8 @@ class RabbitWorker:
         self.channel = self.connection.channel()
         print(f" [?] Channel at RabbitWorker : {self.channel}")
         print(f" [?] IS IT OPEN : {self.channel.is_open}")
-        #print(f" [?] ITS DIR : {dir(self.channel)}")
+        # print(f" [?] ITS DIR : {dir(self.channel)}")
         print(f" [?] ITS NUMBER : {self.channel.channel_number}")
-        
 
         # Declare default queue to get messages from RabbitClient
         self.channel.queue_declare(queue="message_q_0", durable=True)

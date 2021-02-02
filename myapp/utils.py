@@ -13,10 +13,10 @@ def catch_connection_error(inner):
     def outer(self, *args, **kwargs):
         try:
             result = inner(self, *args, **kwargs)
-        except pika.exceptions.AMQPError as e:
-            print(" [Rabbit Client] There was some AMPQ Exception")
+        except pika.exceptions.AMQPError as e:                                      # depends
+            print(" [Rabbit Client] There was some AMPQ Exception")                 # depends
             print(f"{e}")
-            self.rabbit_connected = False
+            self.rabbit_connected = False                                           # depends
         else:
             return result
 
@@ -34,21 +34,21 @@ def reconnect_on_failure(tries=8, start_interval=5):
                     print(f"Calling {i+1} time")
 
                 result = inner(obj, *args, **kwargs)
-                if obj.rabbit_connected == False:
+                if obj.rabbit_connected == False:                                   # depends
                     print("There was some error, reconnect is needed")
-                    print(f" [Rabbit Client] Reconnecting for the {i+1} time")
+                    print(f" [Rabbit Client] Reconnecting for the {i+1} time")      # depends
                     power = random.uniform(1.1, 1.3)
                     delay **= power
                     print(f"New delay is {delay} sec")
-                    print(f"Channel number is {obj.rabbit_channel.channel_number}")
+                    print(f"Channel number is {obj.rabbit_channel.channel_number}") # depends
                     time.sleep(delay)
-                    obj.connect_to_rabbit()
+                    obj.connect_to_rabbit()                                         # depends
                 else:
                     if i > 0:
-                        print(" [Rabbit Client] Successfuly reconnected")
+                        print(" [Rabbit Client] Successfuly reconnected")           # depends
                     return result
 
-            print(f" [Rabbit Client] Ran {tries} times, no connection was established")
+            print(f" [Rabbit Client] Ran {tries} times, no connection was established")# depends
 
         return outer
 

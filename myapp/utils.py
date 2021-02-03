@@ -8,6 +8,20 @@ from flask import current_app
 import pika
 
 
+class GeneralClient:
+    def connect(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def check_connected(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def get_client_name(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def get_connection_error_exception(self, *args, **kwargs):
+        raise NotImplementedError
+
+
 def catch_connection_error(inner):
     @functools.wraps(inner)
     def outer(self, *args, **kwargs):
@@ -40,7 +54,7 @@ def reconnect_on_failure(tries=8, start_interval=5):
                     power = random.uniform(1.1, 1.3)
                     delay **= power
                     print(f"New delay is {delay} sec")
-                    print(f"Channel number is {obj.rabbit_channel.channel_number}") # depends
+                    #print(f"Channel number is {obj.rabbit_channel.channel_number}") # depends
                     time.sleep(delay)
                     obj.connect_to_rabbit()                                         # depends
                 else:

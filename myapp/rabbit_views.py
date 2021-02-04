@@ -14,7 +14,7 @@ rabbit_client = RabbitClient(rabbit_host, rabbit_user, rabbit_password)
 @blueprint.route("/rabbit")
 def rabbit_view():
     if not rabbit_client.rabbit_connected:
-        rabbit_client.connect_to_rabbit()
+        rabbit_client.connect()
     return render_template(
         "rabbit_page.html", queues_names=rabbit_client.rabbit_queue_list
     )
@@ -24,7 +24,7 @@ def rabbit_view():
 def rabbit_create():
     json_from_request = request.get_json()
     if not rabbit_client.rabbit_connected:
-        rabbit_client.connect_to_rabbit()
+        rabbit_client.connect()
     rabbit_client.send_message(
         json_from_request["message"],
         json_from_request["task_id"],
@@ -36,7 +36,7 @@ def rabbit_create():
 @blueprint.route("/rabbit_result")
 def rabbit_check_result():
     if not rabbit_client.rabbit_connected:
-        rabbit_client.connect_to_rabbit()
+        rabbit_client.connect()
     response = rabbit_client.check_response_once()
     print(f"Type of response - {type(response)}")
     if response:
@@ -57,7 +57,7 @@ def rabbit_check_result_blocking():
     json_from_request = request.get_json()
     task_id = json_from_request["task_id"]
     if not rabbit_client.rabbit_connected:
-        rabbit_client.connect_to_rabbit()
+        rabbit_client.connect()
     response = rabbit_client.check_response_blocking(task_id)
     print(f"Type of response - {type(response)}")
     if response:

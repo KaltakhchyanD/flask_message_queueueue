@@ -69,7 +69,7 @@ def reconnect_on_failure(tries=8, start_interval=5):
     return decorator
 
 
-class RabbitClient:
+class RabbitClient(GeneralClient):
     def __init__(self, rabbit_host, rabbit_user, rabbit_password):
         self.response = None
         self.rabbit_host = rabbit_host
@@ -79,9 +79,10 @@ class RabbitClient:
         self.correlation_id_set = set()
         self.response_dict = dict()
         self.rabbit_channel = None
+        self.client_name = "RabbitClient"
 
     @catch_connection_error
-    def connect_to_rabbit(self):
+    def connect(self):
         """Connect to RabbitMQ if its not connected aready"""
         if self.rabbit_connected:
             return
@@ -128,6 +129,15 @@ class RabbitClient:
         # self.rabbit_channel.start_consuming()
 
         # connection.close()
+
+    def check_connected(self):
+        return self.rabbit_connected
+
+    def get_client_name(self):
+        return self.client_name
+
+    def get_connection_error_exception(self):
+        return pika.exceptions.AMQPError
 
     def response_callback(self, ch, method, properties, body):
         print(f"ANYTHIIIING {properties.correlation_id}")

@@ -15,6 +15,9 @@ class GeneralClient:
     def check_connected(self, *args, **kwargs):
         raise NotImplementedError
 
+    def set_unconnected(self, *args, **kwargs):
+        raise NotImplementedError
+
     def get_client_name(self, *args, **kwargs):
         raise NotImplementedError
 
@@ -24,13 +27,13 @@ class GeneralClient:
 
 def catch_connection_error(inner):
     @functools.wraps(inner)
-    def outer(self, *args, **kwargs):
+    def outer(obj, *args, **kwargs):
         try:
-            result = inner(self, *args, **kwargs)
-        except pika.exceptions.AMQPError as e:                                      # depends
-            print(" [Rabbit Client] There was some AMPQ Exception")                 # depends
+            result = inner(obj, *args, **kwargs)
+        except obj.get_connection_error_exception() as e:
+            print(f" [{obj.get_client_name()}] There was some Connection Exception")
             print(f"{e}")
-            self.rabbit_connected = False                                           # depends
+            obj.set_unconnected()
         else:
             return result
 
@@ -48,21 +51,25 @@ def reconnect_on_failure(tries=8, start_interval=5):
                     print(f"Calling {i+1} time")
 
                 result = inner(obj, *args, **kwargs)
-                if obj.rabbit_connected == False:                                   # depends
+                if obj.rabbit_connected == False:  # depends
                     print("There was some error, reconnect is needed")
-                    print(f" [Rabbit Client] Reconnecting for the {i+1} time")      # depends
+                    print(
+                        f" [Rabbit Client] Reconnecting for the {i+1} time"
+                    )  # depends
                     power = random.uniform(1.1, 1.3)
                     delay **= power
                     print(f"New delay is {delay} sec")
-                    #print(f"Channel number is {obj.rabbit_channel.channel_number}") # depends
+                    # print(f"Channel number is {obj.rabbit_channel.channel_number}") # depends
                     time.sleep(delay)
-                    obj.connect_to_rabbit()                                         # depends
+                    obj.connect_to_rabbit()  # depends
                 else:
                     if i > 0:
-                        print(" [Rabbit Client] Successfuly reconnected")           # depends
+                        print(" [Rabbit Client] Successfuly reconnected")  # depends
                     return result
 
-            print(f" [Rabbit Client] Ran {tries} times, no connection was established")# depends
+            print(
+                f" [Rabbit Client] Ran {tries} times, no connection was established"
+            )  # depends
 
         return outer
 
@@ -132,6 +139,9 @@ class RabbitClient(GeneralClient):
 
     def check_connected(self):
         return self.rabbit_connected
+
+    def set_unconnected(self):
+        self.rabbit_connected = False
 
     def get_client_name(self):
         return self.client_name

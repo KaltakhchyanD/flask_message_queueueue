@@ -51,7 +51,7 @@ def reconnect_on_failure(tries=8, start_interval=5):
                     print(f"Calling {i+1} time")
 
                 result = inner(obj, *args, **kwargs)
-                if obj.rabbit_connected == False:  # depends
+                if obj.check_connected() == False:
                     print("There was some error, reconnect is needed")
                     print(
                         f" [Rabbit Client] Reconnecting for the {i+1} time"
@@ -59,17 +59,17 @@ def reconnect_on_failure(tries=8, start_interval=5):
                     power = random.uniform(1.1, 1.3)
                     delay **= power
                     print(f"New delay is {delay} sec")
-                    # print(f"Channel number is {obj.rabbit_channel.channel_number}") # depends
+                    # print(f"Channel number is {obj.rabbit_channel.channel_number}")
                     time.sleep(delay)
-                    obj.connect_to_rabbit()  # depends
+                    obj.connect()
                 else:
                     if i > 0:
-                        print(" [Rabbit Client] Successfuly reconnected")  # depends
+                        print(f" [{obj.get_client_name()}] Successfuly reconnected")
                     return result
 
             print(
-                f" [Rabbit Client] Ran {tries} times, no connection was established"
-            )  # depends
+                f" [{obj.get_client_name()}] Ran {tries} times, no connection was established"
+            )
 
         return outer
 

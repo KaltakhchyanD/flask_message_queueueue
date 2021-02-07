@@ -40,6 +40,7 @@ def catch_connection_error(inner):
     return outer
 
 
+
 def reconnect_on_failure(tries=8, start_interval=5):
     def decorator(inner):
         @functools.wraps(inner)

@@ -9,6 +9,7 @@ from workers.celery_utils import CeleryClient
 celery_client = CeleryClient()
 celery_app = celery_client.make_celery("myapp")
 
+
 @celery_app.task
 def add(a, b):
     return a + b
@@ -32,6 +33,5 @@ def dummy_task(task_json):
     time.sleep(random_delay)
     print(f" [x] Celery worker: Task for message {message} complete!")
 
-    result_message = message+ "".join([str(random.randint(0, 9)) for i in range(3)])
+    result_message = message + "".join([str(random.randint(0, 9)) for i in range(3)])
     return result_message
-

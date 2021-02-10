@@ -1,5 +1,6 @@
 from celery.result import AsyncResult
 from flask import Blueprint, render_template, request, current_app
+from redis import Redis
 from redis.exceptions import ConnectionError
 from pika.exceptions import AMQPConnectionError
 
@@ -8,11 +9,11 @@ from workers.celery_utils import CeleryClient
 
 blueprint = Blueprint("celery", __name__, url_prefix="")
 
-js_id_to_task_id = {}
 
 celery_client = CeleryClient()
 celery_app = celery_client.make_celery("myapp")
 celery_client.init_celery(celery_app, current_app)
+redis_host = current_app.config["REDIS_HOST"]
 
 
 @blueprint.route("/celery")
@@ -71,7 +72,9 @@ def run_task():
 
     else:
         print(f"Celery given task id - {async_result.task_id} ")
-        js_id_to_task_id[task_json["task_id"]] = async_result.task_id
+        redis = Redis(host=redis_host, port=6379)
+        redis.set(task_json["task_id"], async_result.task_id)
+
 
     print("Started celery task")
     return "<h1>Started celery task</h1>"
@@ -91,7 +94,9 @@ def check_task_result():
         return {"error_code": 11, "error_message": "task_id should not be empty"}, 400
 
     try:
-        task_id_to_check = js_id_to_task_id[task_json["task_id"]]
+        redis = Redis(host=redis_host, port=6379)
+        task_id_to_check=redis.get(task_json["task_id"])
+
     except KeyError:
         return (
             {

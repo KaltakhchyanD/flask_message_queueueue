@@ -75,7 +75,6 @@ def run_task():
         redis = Redis(host=redis_host, port=6379)
         redis.set(task_json["task_id"], async_result.task_id)
 
-
     print("Started celery task")
     return "<h1>Started celery task</h1>"
 
@@ -95,7 +94,7 @@ def check_task_result():
 
     try:
         redis = Redis(host=redis_host, port=6379)
-        task_id_to_check=redis.get(task_json["task_id"])
+        task_id_to_check = redis.get(task_json["task_id"])
 
     except KeyError:
         return (

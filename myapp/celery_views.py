@@ -15,7 +15,6 @@ celery_app = celery_client.make_celery("myapp")
 celery_client.init_celery(celery_app, current_app)
 redis_host = current_app.config["REDIS_HOST"]
 
-
 @blueprint.route("/celery")
 def celery_view():
     return render_template("celery_page.html")
@@ -92,11 +91,10 @@ def check_task_result():
     if not task_json["task_id"]:
         return {"error_code": 11, "error_message": "task_id should not be empty"}, 400
 
-    try:
-        redis = Redis(host=redis_host, port=6379)
-        task_id_to_check = redis.get(task_json["task_id"])
+    redis = Redis(host=redis_host, port=6379)
+    task_id_to_check = redis.get(task_json["task_id"])
 
-    except KeyError:
+    if task_id_to_check is None: 
         return (
             {
                 "error_code": 12,
